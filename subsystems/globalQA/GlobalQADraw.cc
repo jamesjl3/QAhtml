@@ -11,10 +11,12 @@
 #include <TH2.h>
 #include <TPad.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <TLatex.h>
 #include <TLegend.h>
 #include <TF1.h>
 #include <TGaxis.h>
@@ -106,6 +108,11 @@ int GlobalQADraw::Draw(const std::string &what)
     iret += DrawZDC(what);
     idraw++;
   }
+  if (what == "ALL" || what == "sEPD")
+  {
+    iret += DrawsEPD(what);
+    idraw++;
+  }
   if (!idraw)
   {
     std::cout << " Unimplemented Drawing option: " << what << std::endl;
@@ -153,6 +160,23 @@ int GlobalQADraw::MakeCanvas(const std::string &name,int num)
     Pad[num][1]->Draw();
     Pad[num][2]->Draw();
   }
+    
+ if (num == 2)
+ {
+    TC[num] = new TCanvas(name.c_str(),"sEPD Plots", -1, 0, (int) (xsize / 1.2), (int) (ysize / 1.2));
+    TC[num]->UseCurrentStyle();
+    gSystem->ProcessEvents();
+
+    Pad[num][0] = new TPad("mypad00", "sEPD South Map", 0.05, 0.52, 0.50, 0.97, 0);
+    Pad[num][1] = new TPad("mypad01", "sEPD North Map", 0.5, 0.52, 0.95, 0.97, 0);
+    Pad[num][2] = new TPad("mypad02", "sEPD NS ADC distribution", 0.5, 0.02, 0.95, 0.47, 0);
+    Pad[num][3] = new TPad("mypad03", "sEPD NS Correlation", 0.05, 0.02, 0.50, 0.47, 0);
+
+    Pad[num][0]->Draw();
+    Pad[num][1]->Draw();
+    Pad[num][2]->Draw();
+    Pad[num][3]->Draw();
+ }
 
 
   // this one is used to plot the run number on the canvas
@@ -314,11 +338,13 @@ int GlobalQADraw::DrawMBD(const std::string & /*what*/)
   TC[0]->Update();
   return 0;
 }
+
+
 int GlobalQADraw::DrawZDC(const std::string & /*what*/)
 {
   QADrawClient *cl = QADrawClient::instance();
-  TH1 *h_GlobalQA_calc_zvtx = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_calc_zvtx"));
-  TH1 *h_GlobalQA_calc_zvtx_wide = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_calc_zvtx_wide"));
+  TH1 *h_GlobalQA_zdc_zvtx = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_zdc_zvtx"));
+  TH1 *h_GlobalQA_zdc_zvtx_wide = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_zdc_zvtx_wide"));
   TH1 *h_GlobalQA_zdc_energy_s = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_zdc_energy_s"));
   TH1 *h_GlobalQA_zdc_energy_n = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_zdc_energy_n"));
 
@@ -370,9 +396,9 @@ int GlobalQADraw::DrawZDC(const std::string & /*what*/)
 
   // Plot the ZDC z-vertex
   Pad[1][1]->cd();
-  if (h_GlobalQA_calc_zvtx)
+  if (h_GlobalQA_zdc_zvtx)
   {
-    h_GlobalQA_calc_zvtx->DrawCopy();
+      h_GlobalQA_zdc_zvtx->DrawCopy();
     gPad->UseCurrentStyle();
   }
   else 
@@ -382,13 +408,12 @@ int GlobalQADraw::DrawZDC(const std::string & /*what*/)
 
   // Plot the ZDC z-vertex wide
   Pad[1][2]->cd();
-  if (h_GlobalQA_calc_zvtx_wide)
+  if (h_GlobalQA_zdc_zvtx_wide)
   {
     TF1 * f = new TF1("f", "gaus", -100,100);
-    f->SetParameters(h_GlobalQA_calc_zvtx_wide->GetMaximum(), h_GlobalQA_calc_zvtx_wide->GetMean(), h_GlobalQA_calc_zvtx_wide->GetRMS() );
-    h_GlobalQA_calc_zvtx_wide->Fit("f");
-
-    h_GlobalQA_calc_zvtx_wide->DrawCopy();
+    f->SetParameters(h_GlobalQA_zdc_zvtx_wide->GetMaximum(), h_GlobalQA_zdc_zvtx_wide->GetMean(), h_GlobalQA_zdc_zvtx_wide->GetRMS() );
+    h_GlobalQA_zdc_zvtx_wide->Fit("f");
+    h_GlobalQA_zdc_zvtx_wide->DrawCopy();
     gPad->UseCurrentStyle();
     
     f->SetLineColor(kBlack);
@@ -428,6 +453,171 @@ int GlobalQADraw::DrawZDC(const std::string & /*what*/)
   return 0;
 }
 
+int GlobalQADraw::DrawsEPD(const std::string & /*what*/)
+{
+    QADrawClient *cl = QADrawClient::instance();
+    TH1 *h_GlobalQA_sEPD_adcsum_s = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_sEPD_adcsum_s"));
+    TH1 *h_GlobalQA_sEPD_adcsum_n = dynamic_cast<TH1 *>(cl->getHisto("h_GlobalQA_sEPD_adcsum_n"));
+    TH2 *h2_GlobalQA_sEPD_adcsum_ns = dynamic_cast<TH2 *>(cl->getHisto("h2_GlobalQA_sEPD_adcsum_ns"));
+    TProfile2D *h2Profile_GlobalQA_sEPD_tiles_north = dynamic_cast<TProfile2D *>(cl->getHisto("h2Profile_GlobalQA_sEPD_tiles_north"));
+    TProfile2D *h2Profile_GlobalQA_sEPD_tiles_south = dynamic_cast<TProfile2D *>(cl->getHisto("h2Profile_GlobalQA_sEPD_tiles_south"));
+    TH2 *h2_GlobalQA_sEPD_ADC_channel_north = dynamic_cast<TH2 *>(cl->getHisto("h2_GlobalQA_sEPD_ADC_channel_north"));
+    TH2 *h2_GlobalQA_sEPD_ADC_channel_south = dynamic_cast<TH2 *>(cl->getHisto("h2_GlobalQA_sEPD_ADC_channel_south"));
+
+  if (!gROOT->FindObject("Global3"))
+  {
+    MakeCanvas("Global3",2);
+  }
+  TLegend * leg10 = new TLegend(0.7, 0.7, 0.9 ,0.9);
+  Pad[2][0]->cd();
+  if (h_GlobalQA_sEPD_adcsum_s && h_GlobalQA_sEPD_adcsum_n)
+  {
+      double _max1 = h_GlobalQA_sEPD_adcsum_s->GetMaximum();
+      double _max2 = h_GlobalQA_sEPD_adcsum_n->GetMaximum();
+      double _add = 500.0;
+      double _histmax = _max2;
+
+      if(_max2 < _max1) _histmax = _max1;
+
+      h_GlobalQA_sEPD_adcsum_n->GetXaxis()->SetRangeUser(-10, 30000);
+      h_GlobalQA_sEPD_adcsum_s->GetXaxis()->SetRangeUser(-10, 30000);
+      h_GlobalQA_sEPD_adcsum_n->GetYaxis()->SetRangeUser(0, _histmax + _add);
+      h_GlobalQA_sEPD_adcsum_s->GetYaxis()->SetRangeUser(0, _histmax + _add);
+
+      h_GlobalQA_sEPD_adcsum_s->Scale(1/h_GlobalQA_sEPD_adcsum_s->Integral());
+      h_GlobalQA_sEPD_adcsum_n->Scale(1/h_GlobalQA_sEPD_adcsum_n->Integral());
+ 
+      h_GlobalQA_sEPD_adcsum_s->SetYTitle("Normalized Counts");
+    
+      gPad->UseCurrentStyle();
+
+      h_GlobalQA_sEPD_adcsum_s->SetLineColor(kRed);
+      h_GlobalQA_sEPD_adcsum_s->SetMarkerColor(kRed);
+      h_GlobalQA_sEPD_adcsum_s->SetMarkerStyle(20);
+      h_GlobalQA_sEPD_adcsum_s->SetMarkerSize(0.8);
+
+      leg10->AddEntry(h_GlobalQA_sEPD_adcsum_s,"South","l");
+      h_GlobalQA_sEPD_adcsum_s->DrawCopy();
+    
+  
+      h_GlobalQA_sEPD_adcsum_n->SetLineColor(kBlue);
+      h_GlobalQA_sEPD_adcsum_n->SetMarkerColor(kBlue);
+      h_GlobalQA_sEPD_adcsum_n->SetMarkerStyle(20);
+      h_GlobalQA_sEPD_adcsum_n->SetMarkerSize(0.8);
+      
+      leg10->AddEntry(h_GlobalQA_sEPD_adcsum_n,"North","l");
+      h_GlobalQA_sEPD_adcsum_n->DrawCopy("same");
+    
+    leg10->Draw();
+  }
+  else
+  {
+    return -1;
+  }
+
+  Pad[2][1]->cd();
+  if (h2_GlobalQA_sEPD_adcsum_ns)
+  {
+     
+    h2_GlobalQA_sEPD_adcsum_ns->SetTitle("sEPD North-South Correlation");
+    h2_GlobalQA_sEPD_adcsum_ns->GetXaxis()->SetRangeUser(-10, 30000);
+    h2_GlobalQA_sEPD_adcsum_ns->GetYaxis()->SetRangeUser(-10, 30000);
+    h2_GlobalQA_sEPD_adcsum_ns->SetXTitle("sEPD south ADC sum");
+    h2_GlobalQA_sEPD_adcsum_ns->SetYTitle("sEPD north ADC sum");
+    h2_GlobalQA_sEPD_adcsum_ns->DrawCopy("COLZ");
+    gPad->UseCurrentStyle();
+    gPad->SetRightMargin(0.15);
+  
+  }
+  else
+  {
+    return -1;
+  }
+    
+    
+    Pad[2][2]->cd();
+    if (h2Profile_GlobalQA_sEPD_tiles_south && h2_GlobalQA_sEPD_ADC_channel_south)
+    {
+      h2Profile_GlobalQA_sEPD_tiles_south->GetYaxis()->SetNdivisions(527);
+      h2Profile_GlobalQA_sEPD_tiles_south->GetXaxis()->SetNdivisions(527);
+      h2_GlobalQA_sEPD_ADC_channel_south->GetXaxis()->SetNdivisions(527);
+      h2_GlobalQA_sEPD_ADC_channel_south->GetYaxis()->SetNdivisions(527);
+      h2Profile_GlobalQA_sEPD_tiles_south->SetTitle("sEPD South Tile Mean ADC");
+      h2_GlobalQA_sEPD_ADC_channel_south->SetTitle("sEPD South Tile Mean ADC");
+      h2_GlobalQA_sEPD_ADC_channel_south->GetZaxis()->SetTitle("Mean ADC");
+      h2Profile_GlobalQA_sEPD_tiles_south->SetXTitle("#eta bin");
+      h2Profile_GlobalQA_sEPD_tiles_south->SetYTitle("#phi bin");
+      h2_GlobalQA_sEPD_ADC_channel_south->SetXTitle("#eta bin");
+      h2_GlobalQA_sEPD_ADC_channel_south->SetYTitle("#phi bin");
+      h2Profile_GlobalQA_sEPD_tiles_south->DrawCopy("COLZ");
+      if(h2_GlobalQA_sEPD_ADC_channel_south->GetEntries() == 372)
+      {
+        h2_GlobalQA_sEPD_ADC_channel_south->Draw("text SAME");
+      }
+      
+
+      TLatex l1;
+      l1.SetNDC();
+      l1.SetTextFont(43);
+      l1.SetTextSize(20);
+      l1.DrawLatex(0.3, 0.01, "sEPD South Tile <ADC>");
+      gPad->UseCurrentStyle();
+      gPad->SetRightMargin(0.15);
+      gPad->SetLogz();
+    }
+    else
+    {
+      return -1;
+    }
+
+    Pad[2][3]->cd();
+    if (h2Profile_GlobalQA_sEPD_tiles_north && h2_GlobalQA_sEPD_ADC_channel_north)
+    {
+      h2Profile_GlobalQA_sEPD_tiles_north->GetYaxis()->SetNdivisions(527);
+      h2Profile_GlobalQA_sEPD_tiles_north->GetXaxis()->SetNdivisions(527);
+      h2_GlobalQA_sEPD_ADC_channel_north->GetXaxis()->SetNdivisions(527);
+      h2_GlobalQA_sEPD_ADC_channel_north->GetYaxis()->SetNdivisions(527);
+      h2Profile_GlobalQA_sEPD_tiles_north->SetTitle("sEPD North Tile Mean ADC");
+      h2_GlobalQA_sEPD_ADC_channel_north->SetTitle("sEPD North Tile Mean ADC");
+      h2_GlobalQA_sEPD_ADC_channel_north->GetZaxis()->SetTitle("Mean ADC");
+      h2Profile_GlobalQA_sEPD_tiles_north->SetXTitle("#eta bin");
+      h2Profile_GlobalQA_sEPD_tiles_north->SetYTitle("#phi bin");
+      h2_GlobalQA_sEPD_ADC_channel_north->SetXTitle("#eta bin");
+      h2_GlobalQA_sEPD_ADC_channel_north->SetYTitle("#phi bin");
+      h2Profile_GlobalQA_sEPD_tiles_north->DrawCopy("COLZ ");
+      if(h2_GlobalQA_sEPD_ADC_channel_north->GetEntries() == 372)
+      {
+        h2_GlobalQA_sEPD_ADC_channel_north->Draw("text SAME");
+      }
+      TLatex l2;
+      l2.SetNDC();
+      l2.SetTextFont(43);
+      l2.SetTextSize(20);
+      l2.DrawLatex(0.3, 0.01, "sEPD North Tile <ADC>");
+      gPad->UseCurrentStyle();
+      gPad->SetRightMargin(0.15);
+      gPad->SetLogz();
+    }
+    else
+    {
+      return -1;
+    }
+
+  //db->DBcommit();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  runnostream << Name() << "_sEPD Run " << cl->RunNumber();
+  runstring = runnostream.str();
+  transparent[2]->cd();
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[2]->Update();
+  return 0;
+}
 
 int GlobalQADraw::MakeHtml(const std::string &what)
 {
@@ -444,6 +634,9 @@ int GlobalQADraw::MakeHtml(const std::string &what)
   cl->CanvasToPng(TC[0], pngfile);
   pngfile = cl->htmlRegisterPage(*this, "ZDC", "global2", "png");
   cl->CanvasToPng(TC[1], pngfile);
+  pngfile = cl->htmlRegisterPage(*this, "sEPD", "global3", "png");
+  cl->CanvasToPng(TC[2], pngfile);
+
 
 
   return 0;

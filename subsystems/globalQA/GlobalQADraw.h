@@ -24,11 +24,12 @@ class GlobalQADraw : public QADraw
   int MakeCanvas(const std::string &name, int num);
   int DrawMBD(const std::string &what = "ALL");
   int DrawZDC(const std::string &what = "ALL");
-  
+  int DrawsEPD(const std::string &what = "ALL");
+
   QADrawDB *db{nullptr};
-  TCanvas *TC[2]{};
-  TPad *transparent[2]{};
-  TPad *Pad[2][5]{};
+  TCanvas *TC[3]{};
+  TPad *transparent[3]{};
+  TPad *Pad[3][5]{};
 };
 
 #endif

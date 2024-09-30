@@ -4,6 +4,7 @@
 #include <phool/phool.h>
 
 #include <TCanvas.h>
+#include <TROOT.h>
 #include <TSystem.h>
 
 #include <boost/format.hpp>
@@ -18,12 +19,12 @@ SingleCanvasDrawer::SingleCanvasDrawer(std::string const& name)
 
 SingleCanvasDrawer::~SingleCanvasDrawer()
 {
-  delete gSystem->FindObject(m_name.c_str());
+  delete gROOT->FindObject(m_name.c_str());
 }
 
 int SingleCanvasDrawer::MakeCanvas()
 {
-  TObject* found_object = gSystem->FindObject(m_name.c_str());
+  TObject* found_object = gROOT->FindObject(m_name.c_str());
   if(found_object && found_object == m_canvas)
   {
     /// No redraw is necessary

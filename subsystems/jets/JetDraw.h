@@ -19,7 +19,6 @@ class TH2;
 // aliases for convenience
 using VPad1D    = std::vector<TPad*>;
 using VPad2D    = std::vector<std::vector<TPad*>>;
-using VPad3D    = std::vector<std::vector<std::vector<TPad*>>>;
 using VCanvas1D = std::vector<TCanvas*>;
 using VCanvas2D = std::vector<std::vector<TCanvas*>>;
 
@@ -42,9 +41,10 @@ class JetDraw : public QADraw
   int Draw(const std::string &what = "ALL") override;
   int DBVarInit();
   void SetJetSummary(TCanvas* c);
+  void SetDoDebug(const bool debug);
 
  private:
-  int MakeCanvas(const std::string &name, const int nHist, TCanvas* canvas, TPad* run, VPad1D& pads);
+  int MakeCanvas(const std::string &name, const int nHist, VCanvas1D& canvas, VPad1D& run);
   int DrawRho(uint32_t trigger);
   int DrawConstituents(uint32_t trigToDraw, JetRes resToDraw);
   int DrawJetKinematics(uint32_t trigger, JetRes reso);
@@ -65,11 +65,8 @@ class JetDraw : public QADraw
   VPad2D m_vecKineRun;
   VPad2D m_vecSeedRun;
 
-  // for individual pads on each canvas
-  VPad2D m_vecRhoPad;
-  VPad3D m_vecCstPad;
-  VPad3D m_vecKinePad;
-  VPad3D m_vecSeedPad;
+  // turn debugging statements on/off
+  bool m_do_debug;
 
   const char* m_constituent_prefix;
   const char* m_rho_prefix;
@@ -124,8 +121,8 @@ class JetDraw : public QADraw
     {JetQADefs::GL1::MBDNS1, "mbdns1"},
     {JetQADefs::GL1::MBDNSJet1, "mbdnsjet1"},
     {JetQADefs::GL1::MBDNSJet2, "mbdnsjet2"},
-    {JetQADefs::GL1::MBDNSJet3, "mbnsjet3"},
-    {JetQADefs::GL1::MBDNSJet4, "mbnsjet4"}
+    {JetQADefs::GL1::MBDNSJet3, "mbdnsjet3"},
+    {JetQADefs::GL1::MBDNSJet4, "mbdnsjet4"}
   };
 };
 #endif

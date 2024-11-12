@@ -146,7 +146,7 @@ int TPCSilDraw::DrawPositionInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_matching Run " << cl->RunNumber();
+  runnostream1 << Name() << "_matching Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -235,7 +235,7 @@ int TPCSilDraw::DrawPositionInfo()
   PrintRun2.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream2;
   std::string runstring2;
-  runnostream2 << Name() << "_No Cuts Run " << cl->RunNumber();
+  runnostream2 << Name() << "_No Cuts Run " << cl->RunNumber() << ", build " << cl->build();
   runstring2 = runnostream2.str();
   transparent[1]->cd();
   PrintRun2.DrawText(0.5, 1., runstring2.c_str());
@@ -348,7 +348,7 @@ int TPCSilDraw::DrawCutHistograms()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream;
     std::string runstring;
-    runnostream << Name() << "_cuts Run " << cl->RunNumber();
+    runnostream << Name() << "_cuts Run " << cl->RunNumber() << ", build " << cl->build();
     runstring = runnostream.str();
     transparent[i]->cd();
     PrintRun.DrawText(0.5, 1., runstring.c_str());

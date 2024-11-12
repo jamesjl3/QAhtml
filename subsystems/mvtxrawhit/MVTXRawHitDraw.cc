@@ -215,7 +215,7 @@ int MVTXRawHitDraw::DrawChipInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_mvtx Chip Info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_mvtx Chip Info Run " << cl->RunNumber() << ", build "<< cl->build();
   runstring1 = runnostream1.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -363,7 +363,7 @@ int MVTXRawHitDraw::DrawHitMapInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_mvtx HitMap Info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_mvtx HitMap Info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());

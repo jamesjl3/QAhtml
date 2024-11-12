@@ -200,7 +200,7 @@ int SiliconSeedsDraw::DrawTrackBasicInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[0]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -294,7 +294,7 @@ int SiliconSeedsDraw::DrawTrackDCAInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[1]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -372,7 +372,7 @@ int SiliconSeedsDraw::DrawTrackQualityInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[2]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -449,7 +449,7 @@ int SiliconSeedsDraw::DrawTrackChargeInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_siliconseeds Track Info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[3]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -538,7 +538,7 @@ int SiliconSeedsDraw::DrawVertexInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_siliconseeds Vertex Info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_siliconseeds Vertex Info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[4]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -611,7 +611,7 @@ int SiliconSeedsDraw::DrawVertexQualityInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_siliconseeds Vertex Info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_siliconseeds Vertex Info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[5]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());

@@ -32,9 +32,11 @@ class TpcSeedsDraw : public QADraw
   int DrawDCAInfo1();
   int DrawDCAInfo2();
   int DrawVertexInfo();
-  TCanvas *TC[6]{};
-  TPad *transparent[6]{};
-  TPad *Pad[6][26]{};
+  int DrawdEdxInfo1();
+  int DrawdEdxInfo2();
+  TCanvas *TC[8]{};
+  TPad *transparent[8]{};
+  TPad *Pad[8][26]{};
   const char *histprefix;
 };
 

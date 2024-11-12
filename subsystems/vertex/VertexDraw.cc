@@ -284,11 +284,11 @@ int VertexDraw::DrawVertexInfo()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1, runnostream2, runnostream3;
   std::string runstring1, runstring2, runstring3;
-  runnostream1 << Name() << "_vertex_1 Run " << cl->RunNumber();
+  runnostream1 << Name() << "_vertex_1 Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
-  runnostream2 << Name() << "_vertex_2 Run " << cl->RunNumber();
+  runnostream2 << Name() << "_vertex_2 Run " << cl->RunNumber() << ", build " << cl->build();
   runstring2 = runnostream2.str();
-  runnostream3 << Name() << "_vertex_3 Run " << cl->RunNumber();
+  runnostream3 << Name() << "_vertex_3 Run " << cl->RunNumber() << ", build " << cl->build();
   runstring3 = runnostream3.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());

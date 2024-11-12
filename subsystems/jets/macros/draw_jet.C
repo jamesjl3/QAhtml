@@ -20,8 +20,11 @@ void draw_jet(const std::string& rootfile, const bool do_debug = false) {
               << std::endl;
   }
 
-  // create instances of relevant clients/modules
-  JetDraw*      jets   = new JetDraw();
+  // create instance of relevant module
+  JetDraw* jets = new JetDraw();
+  jets -> SetDoDebug(do_debug);
+
+  // create draw client
   QADrawClient* client = QADrawClient::instance();
   client -> registerDrawer(jets);
   if (do_debug) {
@@ -39,7 +42,6 @@ void draw_jet(const std::string& rootfile, const bool do_debug = false) {
   if (do_debug) {
     std::cout << " --- HTML page made" << std::endl;
   }
-
 
   // delete QADrawClient instance
   delete client;

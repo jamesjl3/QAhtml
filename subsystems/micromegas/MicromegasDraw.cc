@@ -140,7 +140,7 @@ int MicromegasDraw::DrawTileInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_tpot Clusters Run " << cl->RunNumber();
+    runnostream1 << Name() << "_tpot Clusters Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[quad]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());

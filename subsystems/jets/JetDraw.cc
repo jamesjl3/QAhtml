@@ -28,6 +28,7 @@ JetDraw::JetDraw(const std::string &name)
 : QADraw(name)
 {
   DBVarInit();
+  m_do_debug = false;
   m_constituent_prefix = "h_constituentsinjets";
   m_rho_prefix = "h_eventwiserho";
   m_kinematic_prefix = "h_jetkinematiccheck";
@@ -108,12 +109,6 @@ int JetDraw::Draw(const std::string &what)
      m_vecKineRun.push_back( {} );
      m_vecSeedRun.push_back( {} );
 
-     // and same for the pad vectors (incl. the rho pads)
-     m_vecRhoPad.push_back( {} );
-     m_vecCstPad.push_back( {} );
-     m_vecKinePad.push_back( {} );
-     m_vecSeedPad.push_back( {} );
-
      // draw rho plots
      if  (what == "ALL" || what == "RHO")
      {
@@ -124,11 +119,6 @@ int JetDraw::Draw(const std::string &what)
      // now loop over resolutions to draw
      for (uint32_t resToDraw : m_vecResToDraw)
      {
-
-       // add new column for reso.-depdent pad vectors
-       m_vecCstPad.back().push_back( {} );
-       m_vecKinePad.back().push_back( {} );
-       m_vecSeedPad.back().push_back( {} );
 
        // draw constituent plots
        if (what == "ALL" || what == "CONTSTITUENTS")
@@ -163,23 +153,17 @@ int JetDraw::Draw(const std::string &what)
    return iret;
 }
  
-int JetDraw::MakeCanvas(const std::string &name, const int nHist, TCanvas* canvas, TPad* run, VPad1D& pads)
+int JetDraw::MakeCanvas(const std::string &name, const int nHist, VCanvas1D& canvas, VPad1D& run)
 {
   // instantiate draw client & grab display size
   QADrawClient *cl = QADrawClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
 
-  // emit warning if canvas is already initialized
-  if (canvas)
-  {
-    std::cerr << "Warning: overwriting canvas '" << name << "'." << std::endl;
-  }
-
   // create canvas
   // n.b. xpos (-1) negative means do not draw menu bar
-  canvas = new TCanvas(name.data(), "", -1, 0, (int) (xsize / 1.2), (int) (ysize / 1.2));
-  canvas->UseCurrentStyle();
+  canvas.emplace_back( new TCanvas(name.data(), "", -1, 0, (int) (xsize / 1.2), (int) (ysize / 1.2)) );
+  canvas.back()->UseCurrentStyle();
   gSystem->ProcessEvents();
 
   // divide canvas into appropriate no. of pads
@@ -189,28 +173,15 @@ int JetDraw::MakeCanvas(const std::string &name, const int nHist, TCanvas* canva
   const float bCol = 0.01;
   if (nHist > 1)
   {
-    canvas->Divide(nRow, nCol, bRow, bCol);
+    canvas.back()->Divide(nRow, nCol, bRow, bCol);
   }
-
-  // add pad pointers to vector & draw
-  const std::size_t nPads = nRow * nCol;
-  for (std::size_t iPad = 0; iPad < nPads; ++iPad)
-  {
-    pads.push_back( (TPad*) canvas->GetPad(iPad) );
-    pads.back()->Draw();
-  }
-
-  // emit warning if pad for run already exists
-  if (run)
-  {
-    std::cerr << "Warning: overwriting run pad for canvas '" << name << "'." << std::endl;
-  }
+  canvas.back()->cd();
 
   // create pad for run number
   const std::string runPadName = name + "_run";
-  run = new TPad(runPadName.data(), "this does not show", 0, 0, 1, 1);
-  run->SetFillStyle(4000);
-  run->Draw();
+  run.emplace_back( new TPad(runPadName.data(), "this does not show", 0, 0, 1, 1) );
+  run.back()->SetFillStyle(4000);
+  run.back()->Draw();
 
   // return w/o error
   return 0;
@@ -234,12 +205,10 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
   const std::string rhoCanName = "evtRho_" + m_mapTrigToTag[trigToDraw];
   if (!gROOT->FindObject(rhoCanName.data()))
   {
-    m_vecRhoCanvas.push_back(nullptr);
-    m_vecRhoRun.push_back(nullptr);
-    MakeCanvas(rhoCanName, 4, m_vecRhoCanvas.back(), m_vecRhoRun.back(), m_vecRhoPad.back());
+    MakeCanvas(rhoCanName, 4, m_vecRhoCanvas, m_vecRhoRun);
   }
 
-  m_vecRhoPad.back().at(0)->cd();
+  m_vecRhoCanvas.back()->cd(1);
   if (eventwiserho_rhoarea)
   {
     eventwiserho_rhoarea->SetTitle("Rho Area");
@@ -259,7 +228,7 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
     return -1;
   }
 
-  m_vecRhoPad.back().at(1)->cd();
+  m_vecRhoCanvas.back()->cd(2);
   if (eventwiserho_rhomult)
   {
     eventwiserho_rhomult->SetTitle("#rho Multiplicity");
@@ -275,7 +244,7 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
     return -1;
   }
 
-  m_vecRhoPad.back().at(2)->cd();
+  m_vecRhoCanvas.back()->cd(3);
   if (eventwiserho_sigmaarea)
   {
     eventwiserho_sigmaarea->SetTitle("Sigma Area");
@@ -292,7 +261,7 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
     return -1;
   }
 
-  m_vecRhoPad.back().at(3)->cd();
+  m_vecRhoCanvas.back()->cd(4);
   if (eventwiserho_sigmamult)
   {
     eventwiserho_sigmamult->SetTitle("#sigma Multiplicity");
@@ -315,7 +284,7 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
 
   // Generate run string from client
   std::ostringstream runnostream;
-  runnostream << cl->RunNumber();
+  runnostream << cl->RunNumber() << ", build " << cl->build();
 
   // prepend module name, component, trigger, and resolution
   std::string runstring = Name();
@@ -338,20 +307,20 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
   // Use resToDraw to select histograms or adjust drawing logic
   switch (resToDraw) {
   case R02:
-    std::cout << "Resolution R02" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R02" << std::endl;
     break;
   case R03:
-    std::cout << "Resolution R03" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R03" << std::endl;
     break;
   case R04:
-    std::cout << "Resolution R04" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R04" << std::endl;
     break;
   case R05:
-    std::cout << "Resolution R05" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R05" << std::endl;
     break;
   default:
     std::cerr << "Unknown resolution" << std::endl;
-    break;
+    return -1;
   }
 
   // for constituent hist names
@@ -368,18 +337,16 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
   TH1D *constituents_efracjet_cemc = dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_efracjet_cemc"));
   TH1D *constituents_efracjet_ihcal = dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_efracjet_ihcal"));
   TH1D *constituents_efracjet_ohcal = dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_efracjet_ohcal"));
-  TH2D *constituents_efracjetvscalolayer = dynamic_cast<TH2D *>(cl->getHisto(cstHistName + "_efracjetcscalolayer"));
+  TH2D *constituents_efracjetvscalolayer = dynamic_cast<TH2D *>(cl->getHisto(cstHistName + "_efracjetvscalolayer"));
 
   // form canvas name & if it doesn't exist yet, create it
   const std::string cstCanName = "jetCsts_" + m_mapTrigToTag[trigToDraw] + "_" + m_mapResToTag[resToDraw];
   if (!gROOT->FindObject(cstCanName.data()))
   {
-    m_vecCstCanvas.back().push_back(nullptr);
-    m_vecCstRun.back().push_back(nullptr);
-    MakeCanvas(cstCanName, 9, m_vecCstCanvas.back().back(), m_vecCstRun.back().back(), m_vecCstPad.back().back());
+    MakeCanvas(cstCanName, 9, m_vecCstCanvas.back(), m_vecCstRun.back());
   }
 
-  m_vecCstPad.back().back().at(0)->cd();
+  m_vecCstCanvas.back().back()->cd(1);
   if (constituents_ncsts_cemc)
   {
     constituents_ncsts_cemc->SetTitle("Jet N Constituents in CEMC");
@@ -399,7 +366,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(1)->cd();
+  m_vecCstCanvas.back().back()->cd(2);
   if (constituents_ncsts_ihcal)
   {
     constituents_ncsts_ihcal->SetTitle("Jet N Constituents in IHCal");
@@ -416,7 +383,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(2)->cd();
+  m_vecCstCanvas.back().back()->cd(3);
   if (constituents_ncsts_ohcal)
   {
     constituents_ncsts_ohcal->SetTitle("Jet N Constituents in OHCal");
@@ -433,7 +400,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(3)->cd();
+  m_vecCstCanvas.back().back()->cd(4);
   if (constituents_ncsts_total)
   {
     constituents_ncsts_total->SetTitle("Jet N Constituents");
@@ -449,7 +416,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(4)->cd();
+  m_vecCstCanvas.back().back()->cd(5);
   if (constituents_ncstsvscalolayer)
   {
     constituents_ncstsvscalolayer->SetTitle("Jet N Constituents vs Calo Layer");
@@ -457,7 +424,6 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     constituents_ncstsvscalolayer->SetYTitle("Calo Layer");
     constituents_ncstsvscalolayer->SetZTitle("Counts");
     constituents_ncstsvscalolayer->DrawCopy("COLZ"); // 2D Histogram
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -468,7 +434,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(5)->cd();
+  m_vecCstCanvas.back().back()->cd(6);
   if (constituents_efracjetvscalolayer)
   {
     constituents_efracjetvscalolayer->SetTitle("Jet E Fraction vs Calo Layer");
@@ -476,7 +442,6 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     constituents_efracjetvscalolayer->SetYTitle("Calo Layer");
     constituents_efracjetvscalolayer->SetZTitle("Counts");
     constituents_efracjetvscalolayer->DrawCopy("COLZ"); // 2D Histogram
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -487,14 +452,13 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(6)->cd();
+  m_vecCstCanvas.back().back()->cd(7);
   if (constituents_efracjet_cemc)
   {
     constituents_efracjet_cemc->SetTitle("Jet E Fraction in CEMC");
     constituents_efracjet_cemc->SetXTitle("Jet E fraction");
     constituents_efracjet_cemc->SetYTitle("Counts");
     constituents_efracjet_cemc->DrawCopy("HIST"); // 1D Histogram
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -505,14 +469,13 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(7)->cd();
+  m_vecCstCanvas.back().back()->cd(8);
   if (constituents_efracjet_ihcal)
   {
     constituents_efracjet_ihcal->SetTitle("Jet Fraction in IHCal");
     constituents_efracjet_ihcal->SetXTitle("Jet E Fraction");
     constituents_efracjet_ihcal->SetYTitle("Counts");
     constituents_efracjet_ihcal->DrawCopy("HIST"); // 1D Histogram
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -523,14 +486,13 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecCstPad.back().back().at(8)->cd();
+  m_vecCstCanvas.back().back()->cd(9);
   if (constituents_efracjet_ohcal)
   {
     constituents_efracjet_ohcal->SetTitle("Jet Fraction in OHCal");
     constituents_efracjet_ohcal->SetXTitle("Jet E Fraction");
     constituents_efracjet_ohcal->SetYTitle("Counts");
     constituents_efracjet_ohcal->DrawCopy("HIST");  // 1D Histogram
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -549,7 +511,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
 
   // Generate run string from client
   std::ostringstream runnostream;
-  runnostream << cl->RunNumber();
+  runnostream << cl->RunNumber() << ", build " << cl->build();
 
   // prepend module name, component, trigger, and resolution
   std::string runstring = Name();
@@ -574,20 +536,20 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
   // Use resToDraw to select histograms or adjust drawing logic
   switch (resToDraw) {
   case R02:
-    std::cout << "Resolution R02" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R02" << std::endl;
     break;
   case R03:
-    std::cout << "Resolution R03" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R03" << std::endl;
     break;
   case R04:
-    std::cout << "Resolution R04" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R04" << std::endl;
     break;
   case R05:
-    std::cout << "Resolution R05" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R05" << std::endl;
     break;
   default:
     std::cerr << "Unknown resolution" << std::endl;
-    break;
+    return -1;
   }
 
   // for kinematic hist names
@@ -599,22 +561,20 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
 
   TH2D *jetkinematiccheck_etavsphi = dynamic_cast<TH2D *>(cl->getHisto(kineHistPrefix + "_etavsphi_" + m_mapResToTag[resToDraw]));
   TH2D *jetkinematiccheck_jetmassvseta = dynamic_cast<TH2D *>(cl->getHisto(kineHistPrefix + "_jetmassvseta_" + m_mapResToTag[resToDraw]));
-  TH2D *jetkinematiccheck_jetmassvspt = dynamic_cast<TH2D *>(cl->getHisto(kineHistPrefix + "_jettmassvspt_" + m_mapResToTag[resToDraw]));
+  TH2D *jetkinematiccheck_jetmassvspt = dynamic_cast<TH2D *>(cl->getHisto(kineHistPrefix + "_jetmassvspt_" + m_mapResToTag[resToDraw]));
   TH2D *jetkinematiccheck_spectra = dynamic_cast<TH2D *>(cl->getHisto(kineHistPrefix + "_spectra_" + m_mapResToTag[resToDraw]));
 
   TProfile *jetkinematiccheck_jetmassvseta_pfx = dynamic_cast<TProfile *>(cl->getHisto(kineHistPrefix + "_jetmassvseta_" + kineProfSuffix));
-  TProfile *jetkinematiccheck_jetmassvspt_pfx = dynamic_cast<TProfile *>(cl->getHisto(kineHistPrefix + "_jettmassvspt_" + kineProfSuffix));
+  TProfile *jetkinematiccheck_jetmassvspt_pfx = dynamic_cast<TProfile *>(cl->getHisto(kineHistPrefix + "_jetmassvspt_" + kineProfSuffix));
 
   // form canvas name & if it doesn't exist yet, create it
   const std::string kineCanName = "jetKinematics_" + m_mapTrigToTag[trigToDraw] + "_" + m_mapResToTag[resToDraw];
   if (!gROOT->FindObject(kineCanName.data()))
   {
-    m_vecKineCanvas.back().push_back(nullptr);
-    m_vecKineRun.back().push_back(nullptr);
-    MakeCanvas(kineCanName, 4, m_vecKineCanvas.back().back(), m_vecKineRun.back().back(), m_vecKinePad.back().back());
+    MakeCanvas(kineCanName, 4, m_vecKineCanvas.back(), m_vecKineRun.back());
   }
 
-  m_vecKinePad.back().back().at(0)->cd();
+  m_vecKineCanvas.back().back()->cd(1);
   if (jetkinematiccheck_etavsphi)
   {
     jetkinematiccheck_etavsphi->SetTitle("Jet #eta vs #phi");
@@ -624,7 +584,6 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
     // jetkinematiccheck_etavsphi->GetXaxis()->SetNdivisions(505);
     // jetkinematiccheck_etavsphi->GetXaxis()->SetRangeUser(-1, 15);
     jetkinematiccheck_etavsphi->DrawCopy("COLZ");  // 2D Histogram
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -635,7 +594,7 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
     return -1;
   }
 
-  m_vecKinePad.back().back().at(1)->cd();
+  m_vecKineCanvas.back().back()->cd(2);
   if (jetkinematiccheck_jetmassvseta && jetkinematiccheck_jetmassvseta_pfx)
   {
     jetkinematiccheck_jetmassvseta->SetTitle("Jet Mass vs #eta");
@@ -648,7 +607,6 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
     jetkinematiccheck_jetmassvseta_pfx->SetYTitle("Jet #eta");
     jetkinematiccheck_jetmassvseta_pfx->SetZTitle("Counts");
     jetkinematiccheck_jetmassvseta_pfx->DrawCopy("SAME");  // Profile
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -659,7 +617,7 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
     return -1;
   }
 
-  m_vecKinePad.back().back().at(2)->cd();
+  m_vecKineCanvas.back().back()->cd(3);
   if (jetkinematiccheck_jetmassvspt && jetkinematiccheck_jetmassvspt_pfx)
   {
     jetkinematiccheck_jetmassvspt->SetTitle("Jet Mass vs p_{T}");
@@ -672,7 +630,6 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
     jetkinematiccheck_jetmassvspt_pfx->SetYTitle("Jet p_{T} [GeV/c]");
     jetkinematiccheck_jetmassvspt_pfx->SetZTitle("Counts");
     jetkinematiccheck_jetmassvspt_pfx->DrawCopy("SAME");  // Profile
-    gStyle->SetPalette(4, kBird);
     gPad->UseCurrentStyle();
     gPad->Update();
     gPad->SetRightMargin(0.15);
@@ -683,7 +640,7 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
     return -1;
   }
 
-  m_vecKinePad.back().back().at(3)->cd();
+  m_vecKineCanvas.back().back()->cd(4);
   if (jetkinematiccheck_spectra)
   {
     jetkinematiccheck_spectra->SetTitle("Jet Spectra");
@@ -706,7 +663,7 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
 
   // Generate run string from client
   std::ostringstream runnostream;
-  runnostream << cl->RunNumber();
+  runnostream << cl->RunNumber() << ", build " << cl->build();
 
   // prepend module name, component, trigger, and resolution
   std::string runstring = Name();
@@ -731,20 +688,20 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
   // Use resToDraw to select histograms or adjust drawing logic                                                                           
   switch (resToDraw) {
   case R02:
-    std::cout << "Resolution R02" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R02" << std::endl;
     break;
   case R03:
-    std::cout << "Resolution R03" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R03" << std::endl;
     break;
   case R04:
-    std::cout << "Resolution R04" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R04" << std::endl;
     break;
   case R05:
-    std::cout << "Resolution R05" << std::endl;
+    if (m_do_debug) std::cout << "Resolution R05" << std::endl;
     break;
   default:
     std::cerr << "Unknown resolution" << std::endl;
-    break;
+    return -1;
   }
 
   // for seed hist names
@@ -766,12 +723,10 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
   const std::string seedCanName = "jetSeeds_" + m_mapTrigToTag[trigToDraw] + "_" + m_mapResToTag[resToDraw];
   if (!gROOT->FindObject(seedCanName.data()))
   {
-    m_vecSeedCanvas.back().push_back(nullptr);
-    m_vecSeedRun.back().push_back(nullptr);
-    MakeCanvas(seedCanName, 8, m_vecSeedCanvas.back().back(), m_vecSeedRun.back().back(), m_vecSeedPad.back().back());
+    MakeCanvas(seedCanName, 8, m_vecSeedCanvas.back(), m_vecSeedRun.back());
   }
 
-  m_vecSeedPad.back().back().at(0)->cd();
+  m_vecSeedCanvas.back().back()->cd(1);
   if (jetseedcount_rawetavsphi)
   {
       jetseedcount_rawetavsphi->SetLineColor(kBlue);
@@ -790,7 +745,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(1)->cd();
+  m_vecSeedCanvas.back().back()->cd(2);
   if (jetseedcount_rawpt)
   {
     jetseedcount_rawpt->SetTitle("Raw p_{T}");
@@ -805,7 +760,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(2)->cd();
+  m_vecSeedCanvas.back().back()->cd(3);
   if (jetseedcount_rawptall)
   {
     jetseedcount_rawptall->SetTitle("Raw p_{T} (all jet seeds)");
@@ -820,7 +775,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(3)->cd();
+  m_vecSeedCanvas.back().back()->cd(4);
   if (jetseedcount_rawseedcount)
   {
     jetseedcount_rawseedcount->SetTitle("Raw Seed Count per Event");
@@ -835,7 +790,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(4)->cd();
+  m_vecSeedCanvas.back().back()->cd(5);
   if (jetseedcount_subetavsphi)
   {
     jetseedcount_subetavsphi->SetLineColor(kBlue);
@@ -853,7 +808,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(5)->cd();
+  m_vecSeedCanvas.back().back()->cd(6);
   if (jetseedcount_subpt)
   {
     jetseedcount_subpt->SetTitle("Sub. p_{T}");
@@ -867,7 +822,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(6)->cd();
+  m_vecSeedCanvas.back().back()->cd(7);
   if (jetseedcount_subptall)
   {
     jetseedcount_subptall->SetTitle("Sub. p_{T} (all jet seeds)");
@@ -881,7 +836,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
     return -1;
   }
 
-  m_vecSeedPad.back().back().at(7)->cd();
+  m_vecSeedCanvas.back().back()->cd(8);
   if (jetseedcount_subseedcount)
   {
     jetseedcount_subseedcount->SetTitle("Sub Seed Count per Event");
@@ -899,7 +854,7 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
 
   // Generate run string from client
   std::ostringstream runnostream;
-  runnostream << cl->RunNumber();
+  runnostream << cl->RunNumber() << ", build " << cl->build();
 
   // prepend module name, component, trigger, and resolution
   std::string runstring = Name();
@@ -942,11 +897,16 @@ void JetDraw::SetJetSummary(TCanvas* c)
    PrintRun.SetTextAlign(23);  // center/top alignment                                                                                                                                                                                                                           
    std::ostringstream runnostream;
    std::string runstring;
-   runnostream << Name() << "_jet_summary Run " << cl->RunNumber();
+   runnostream << Name() << "_jet_summary Run " << cl->RunNumber() << ", build " << cl->build();
    runstring = runnostream.str();
    tr->cd();
    PrintRun.DrawText(0.5, 1., runstring.c_str());
    jetSummary->Update();
+}
+
+void JetDraw::SetDoDebug(const bool debug)
+{
+  m_do_debug = debug;
 }
 
 void JetDraw::myText(double x, double y, int color, const char *text, double tsize)

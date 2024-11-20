@@ -5,6 +5,7 @@
 #include <qahtml/QADrawDB.h>
 #include <TCanvas.h>
 #include <TDatime.h>
+#include <TFile.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -908,6 +909,94 @@ void JetDraw::SetDoDebug(const bool debug)
 {
   m_do_debug = debug;
 }
+
+// ----------------------------------------------------------------------------
+//! Save canvases to file
+// ----------------------------------------------------------------------------
+/*! Helper method to save all canvases to
+ *  a specified file. This is useful for
+ *  debugging and quick testing when
+ *  adjusting plotting details/etc.
+ */
+void JetDraw::SaveCanvasesToFile(TFile* file)
+{
+
+  // emit debugging message
+  if (m_do_debug)
+  {
+    std::cout << "Saving plots to file:\n"
+              << "  " << file -> GetName()
+              << std::endl;
+  }
+
+  // check if you can cd into file
+  //   - if not, exit
+  const bool isGoodCD = file -> cd();
+  if (!isGoodCD)
+  {
+    if (m_do_debug)
+    {
+      std::cerr << PHWHERE << "WARNING: couldn't cd into output file!" << std::endl;
+    }
+    return;
+  }
+
+  // for tracking how many plots were saved
+  std::size_t nWrite = 0;
+
+  // save rho canvases
+  for (auto rho : m_vecRhoCanvas)
+  {
+    rho -> Draw();
+    rho -> Write();
+    ++nWrite;
+  }
+  if (m_do_debug) std::cout << "  -- Saved rho plots." << std::endl;
+
+  // save constituent canvases
+  for (auto cstRow : m_vecCstCanvas)
+  {
+    for (auto cst : cstRow)
+    {
+      cst -> Draw();
+      cst -> Write();
+      ++nWrite;
+    }
+  }
+  if (m_do_debug) std::cout << "  -- Saved constituent plots." << std::endl;
+
+  // save kinematics canvases
+  for (auto kinRow : m_vecKineCanvas)
+  {
+    for (auto kin : kinRow)
+    {
+      kin -> Draw();
+      kin -> Write();
+      ++nWrite;
+    }
+  }
+  if (m_do_debug) std::cout << "  -- Saved kinematic plots." << std::endl;
+
+  // save seed canvases
+  for (auto sedRow : m_vecSeedCanvas)
+  {
+    for (auto sed : sedRow)
+    {
+      sed -> Draw();
+      sed -> Write();
+      ++nWrite;
+    }
+  }
+  if (m_do_debug) std::cout << "  -- Saved seed plots." << std::endl;
+
+  // announce how many plots saved & exit
+  if (m_do_debug)
+  {
+    std::cout << "Finished saving plots: " << nWrite << " plots written." << std::endl;
+  }
+  return;
+
+}  // end 'SaveCanvasesToFile(TFile*)'
 
 void JetDraw::myText(double x, double y, int color, const char *text, double tsize)
 {

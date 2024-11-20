@@ -11,10 +11,11 @@
 class QADB;
 class QADBVar;
 class TCanvas;
+class TFile;
 class TGraphErrors;
-class TPad;
 class TH1;
 class TH2;
+class TPad;
 
 // aliases for convenience
 using VPad1D    = std::vector<TPad*>;
@@ -42,6 +43,7 @@ class JetDraw : public QADraw
   int DBVarInit();
   void SetJetSummary(TCanvas* c);
   void SetDoDebug(const bool debug);
+  void SaveCanvasesToFile(TFile* file);
 
  private:
   int MakeCanvas(const std::string &name, const int nHist, VCanvas1D& canvas, VPad1D& run);

@@ -12,6 +12,8 @@ class TGraphErrors;
 class TPad;
 class TH1F;
 class TH2F;
+class TGraph;
+class TLegend;
 
 class MicromegasDraw : public QADraw
 {
@@ -25,7 +27,11 @@ class MicromegasDraw : public QADraw
 
  private:
   int MakeCanvas(const std::string &name, int num);
+  TH1F* ClusterAverage(TH2F*, std::string);
+  int BinValues(TH1F*);
   int DrawTileInfo();
+  int DrawClusterInfo();
+  int DrawBCOInfo();
   TCanvas *TC[4]{};
   TPad *transparent[4]{};
   TPad *Pad[4][4]{};

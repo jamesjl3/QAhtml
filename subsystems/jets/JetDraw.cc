@@ -56,37 +56,37 @@ int JetDraw::MakeHtml(const std::string &what)
 
   // loop over triggers to draw
   for (std::size_t iTrigToDraw = 0; iTrigToDraw < m_vecTrigToDraw.size(); ++iTrigToDraw)
-  {
-    // grab index & name of trigger being drawn
-    const uint32_t    idTrig   = m_vecTrigToDraw[iTrigToDraw];
-    const std::string nameTrig = m_mapTrigToName[idTrig];
-
-    // draw rho plots
-    const std::string pngRho = cl->htmlRegisterPage(*this, nameTrig, nameTrig, "png");
-    cl->CanvasToPng(m_vecRhoCanvas[iTrigToDraw], pngRho);
-
-    // loop over jet resolutions to draw
-    for (std::size_t iResToDraw = 0; iResToDraw < m_vecResToDraw.size(); ++iResToDraw)
     {
-      // grab index & name of resolution being drawn
-      const uint32_t    idRes   = m_vecResToDraw[iResToDraw];
-      const std::string nameRes = m_mapResToName[idRes];
-      const std::string dirRes  = nameTrig + "/" + nameRes;
-      const std::string fileRes = nameTrig + "_" + nameRes;
+      // grab index & name of trigger being drawn
+      const uint32_t    idTrig   = m_vecTrigToDraw[iTrigToDraw];
+      const std::string nameTrig = m_mapTrigToName[idTrig];
 
-      // draw constituent plots 
-      const std::string pngCst = cl->htmlRegisterPage(*this, dirRes, fileRes + "_cst", "png");
-      cl->CanvasToPng(m_vecCstCanvas[iTrigToDraw][iResToDraw], pngCst);
+      // draw rho plots
+      const std::string pngRho = cl->htmlRegisterPage(*this, nameTrig, nameTrig, "png");
+      cl->CanvasToPng(m_vecRhoCanvas[iTrigToDraw], pngRho);
 
-      // draw kinematic plots 
-      const std::string pngKine = cl->htmlRegisterPage(*this, dirRes, fileRes + "_kine", "png");
-      cl->CanvasToPng(m_vecKineCanvas[iTrigToDraw][iResToDraw], pngKine);
+      // loop over jet resolutions to draw
+      for (std::size_t iResToDraw = 0; iResToDraw < m_vecResToDraw.size(); ++iResToDraw)
+	{
+	  // grab index & name of resolution being drawn
+	  const uint32_t    idRes   = m_vecResToDraw[iResToDraw];
+	  const std::string nameRes = m_mapResToName[idRes];
+	  const std::string dirRes  = nameTrig + "/" + nameRes;
+	  const std::string fileRes = nameTrig + "_" + nameRes;
 
-      // draw seed plots 
-      const std::string pngSeed = cl->htmlRegisterPage(*this, dirRes, fileRes + "_seed", "png");
-      cl->CanvasToPng(m_vecSeedCanvas[iTrigToDraw][iResToDraw], pngSeed);
+	  // draw constituent plots 
+	  const std::string pngCst = cl->htmlRegisterPage(*this, dirRes, fileRes + "_cst", "png");
+	  cl->CanvasToPng(m_vecCstCanvas[iTrigToDraw][iResToDraw], pngCst);
+
+	  // draw kinematic plots 
+	  const std::string pngKine = cl->htmlRegisterPage(*this, dirRes, fileRes + "_kine", "png");
+	  cl->CanvasToPng(m_vecKineCanvas[iTrigToDraw][iResToDraw], pngKine);
+
+	  // draw seed plots 
+	  const std::string pngSeed = cl->htmlRegisterPage(*this, dirRes, fileRes + "_seed", "png");
+	  cl->CanvasToPng(m_vecSeedCanvas[iTrigToDraw][iResToDraw], pngSeed);
+	}
     }
-  }
 
   // return w/o error
   return 0;
@@ -94,64 +94,64 @@ int JetDraw::MakeHtml(const std::string &what)
 
 int JetDraw::Draw(const std::string &what)
 {
-   // loop over triggers
-   int iret = 0;
-   int idraw = 0;
-   for (uint32_t trigToDraw : m_vecTrigToDraw)
-   {
+  // loop over triggers
+  int iret = 0;
+  int idraw = 0;
+  for (uint32_t trigToDraw : m_vecTrigToDraw)
+    {
 
-     // add new rows for reso.-dependent canvases
-     m_vecCstCanvas.push_back( {} );
-     m_vecKineCanvas.push_back( {} );
-     m_vecSeedCanvas.push_back( {} );
+      // add new rows for reso.-dependent canvases
+      m_vecCstCanvas.push_back( {} );
+      m_vecKineCanvas.push_back( {} );
+      m_vecSeedCanvas.push_back( {} );
 
-     // likewise for the run pad vectors
-     m_vecCstRun.push_back( {} );
-     m_vecKineRun.push_back( {} );
-     m_vecSeedRun.push_back( {} );
+      // likewise for the run pad vectors
+      m_vecCstRun.push_back( {} );
+      m_vecKineRun.push_back( {} );
+      m_vecSeedRun.push_back( {} );
 
-     // draw rho plots
-     if  (what == "ALL" || what == "RHO")
-     {
-       iret = DrawRho(trigToDraw);
-       ++idraw;
-     }
+      // draw rho plots
+      if  (what == "ALL" || what == "RHO")
+	{
+	  iret = DrawRho(trigToDraw);
+	  ++idraw;
+	}
 
-     // now loop over resolutions to draw
-     for (uint32_t resToDraw : m_vecResToDraw)
-     {
+      // now loop over resolutions to draw
+      for (uint32_t resToDraw : m_vecResToDraw)
+	{
 
-       // draw constituent plots
-       if (what == "ALL" || what == "CONTSTITUENTS")
-       {
-	 iret = DrawConstituents(trigToDraw, static_cast<JetRes>(resToDraw));
-	 ++idraw;
-       }
+	  // draw constituent plots
+	  if (what == "ALL" || what == "CONTSTITUENTS")
+	    {
+	      iret = DrawConstituents(trigToDraw, static_cast<JetRes>(resToDraw));
+	      ++idraw;
+	    }
 
-       // draw kinematic plots
-       if (what == "ALL" || what == "KINEMATICCHECK")
-       {
-         iret = DrawJetKinematics(trigToDraw, static_cast<JetRes>(resToDraw));
-         ++idraw;
-       }
+	  // draw kinematic plots
+	  if (what == "ALL" || what == "KINEMATICCHECK")
+	    {
+	      iret = DrawJetKinematics(trigToDraw, static_cast<JetRes>(resToDraw));
+	      ++idraw;
+	    }
 
-       // draw seed plots
-       if (what == "ALL" || what == "SEEDCOUNT")
-       {
-         iret = DrawJetSeed(trigToDraw, static_cast<JetRes>(resToDraw));
-         ++idraw;
-       }
-     }
-   }
+	  // draw seed plots
+	  if (what == "ALL" || what == "SEEDCOUNT")
+	    {
+	      iret = DrawJetSeed(trigToDraw, static_cast<JetRes>(resToDraw));
+	      ++idraw;
+	    }
+	}
+    }
 
-   if (!idraw)
-   {
-     std::cout << " Unimplemented Drawing option: " << what << std::endl;
-     return -1;
-   }
+  if (!idraw)
+    {
+      std::cout << " Unimplemented Drawing option: " << what << std::endl;
+      return -1;
+    }
 
-   // should return -1 if error, 0 otherwise
-   return iret;
+  // should return -1 if error, 0 otherwise
+  return iret;
 }
  
 int JetDraw::MakeCanvas(const std::string &name, const int nHist, VCanvas1D& canvas, VPad1D& run)
@@ -173,9 +173,9 @@ int JetDraw::MakeCanvas(const std::string &name, const int nHist, VCanvas1D& can
   const float bRow = 0.01;
   const float bCol = 0.01;
   if (nHist > 1)
-  {
-    canvas.back()->Divide(nRow, nCol, bRow, bCol);
-  }
+    {
+      canvas.back()->Divide(nRow, nCol, bRow, bCol);
+    }
   canvas.back()->cd();
 
   // create pad for run number
@@ -205,77 +205,77 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
   // form canvas name & if it doesn't exist yet, create it
   const std::string rhoCanName = "evtRho_" + m_mapTrigToTag[trigToDraw];
   if (!gROOT->FindObject(rhoCanName.data()))
-  {
-    MakeCanvas(rhoCanName, 4, m_vecRhoCanvas, m_vecRhoRun);
-  }
+    {
+      MakeCanvas(rhoCanName, 4, m_vecRhoCanvas, m_vecRhoRun);
+    }
 
   m_vecRhoCanvas.back()->cd(1);
   if (eventwiserho_rhoarea)
-  {
-    eventwiserho_rhoarea->SetTitle("Rho Area");
-    eventwiserho_rhoarea->SetXTitle("#rho*A");
-    eventwiserho_rhoarea->SetYTitle("Counts");
-    // eventwiserho_rhoarea->GetXaxis()->SetNdivisions(505);
-    // eventwiserho_rhoarea->GetXaxis()->SetRangeUser(-1, 15);
-    eventwiserho_rhoarea->DrawCopy("HIST");  // 1D Histogram
-    gPad->UseCurrentStyle();
-    gPad->SetLogy();
-    gPad->SetLogz();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      eventwiserho_rhoarea->SetTitle("Rho Area");
+      eventwiserho_rhoarea->SetXTitle("#rho*A");
+      eventwiserho_rhoarea->SetYTitle("Counts");
+      // eventwiserho_rhoarea->GetXaxis()->SetNdivisions(505);
+      // eventwiserho_rhoarea->GetXaxis()->SetRangeUser(-1, 15);
+      eventwiserho_rhoarea->DrawCopy("HIST");  // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->SetLogy();
+      gPad->SetLogz();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecRhoCanvas.back()->cd(2);
   if (eventwiserho_rhomult)
-  {
-    eventwiserho_rhomult->SetTitle("#rho Multiplicity");
-    eventwiserho_rhomult->SetXTitle("#rho_{mult}");
-    eventwiserho_rhomult->SetYTitle("Counts");
-    eventwiserho_rhomult->DrawCopy("HIST");  // 1D Histogram
-    gPad->UseCurrentStyle();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      eventwiserho_rhomult->SetTitle("#rho Multiplicity");
+      eventwiserho_rhomult->SetXTitle("#rho_{mult}");
+      eventwiserho_rhomult->SetYTitle("Counts");
+      eventwiserho_rhomult->DrawCopy("HIST");  // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecRhoCanvas.back()->cd(3);
   if (eventwiserho_sigmaarea)
-  {
-    eventwiserho_sigmaarea->SetTitle("Sigma Area");
-    eventwiserho_sigmaarea->SetXTitle("#sigma*A");
-    eventwiserho_sigmaarea->SetYTitle("Counts");
-    // eventwiserho_sigmaarea->GetXaxis()->SetNdivisions(505);
-    eventwiserho_sigmaarea->DrawCopy("HIST");  // 1D Histogram
-    gPad->UseCurrentStyle();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      eventwiserho_sigmaarea->SetTitle("Sigma Area");
+      eventwiserho_sigmaarea->SetXTitle("#sigma*A");
+      eventwiserho_sigmaarea->SetYTitle("Counts");
+      // eventwiserho_sigmaarea->GetXaxis()->SetNdivisions(505);
+      eventwiserho_sigmaarea->DrawCopy("HIST");  // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecRhoCanvas.back()->cd(4);
   if (eventwiserho_sigmamult)
-  {
-    eventwiserho_sigmamult->SetTitle("#sigma Multiplicity");
-    eventwiserho_sigmamult->SetXTitle("#sigma_{mult}");
-    eventwiserho_sigmamult->SetYTitle("Counts");
-    eventwiserho_sigmamult->DrawCopy("COLZ");
-    gPad->UseCurrentStyle();
-  }
+    {
+      eventwiserho_sigmamult->SetTitle("#sigma Multiplicity");
+      eventwiserho_sigmamult->SetXTitle("#sigma_{mult}");
+      eventwiserho_sigmamult->SetYTitle("Counts");
+      eventwiserho_sigmamult->DrawCopy("COLZ");
+      gPad->UseCurrentStyle();
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -285,6 +285,8 @@ int JetDraw::DrawRho(const uint32_t trigToDraw /*const JetRes resToDraw*/)
 
   // Generate run string from client
   std::ostringstream runnostream;
+  //  QADrawClient *cl = QADrawClient::instance();
+  std::cout << "Build info: " << cl->build() << std::endl;
   runnostream << cl->RunNumber() << ", build " << cl->build();
 
   // prepend module name, component, trigger, and resolution
@@ -329,7 +331,7 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
 
   // grab relevant histograms from draw client
   QADrawClient *cl = QADrawClient::instance();
-
+  
   TH1D *constituents_ncsts_cemc = dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_cemc"));
   TH1D *constituents_ncsts_ihcal = dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_ihcal"));
   TH1D *constituents_ncsts_ohcal = dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_ohcal"));
@@ -346,163 +348,184 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
   {
     MakeCanvas(cstCanName, 9, m_vecCstCanvas.back(), m_vecCstRun.back());
   }
+  
+
+  // Grab histograms
+  //  QADrawClient *cl = QADrawClient::instance();
+  std::vector<TH1*> constituents = {
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_cemc")),
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_ihcal")),
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_ohcal")),
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_ncsts_total")),
+    dynamic_cast<TH2D *>(cl->getHisto(cstHistName + "_ncstsvscalolayer")),
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_efracjet_cemc")),
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_efracjet_ihcal")),
+    dynamic_cast<TH1D *>(cl->getHisto(cstHistName + "_efracjet_ohcal")),
+    dynamic_cast<TH2D *>(cl->getHisto(cstHistName + "_efracjetvscalolayer"))
+  };
+
+  // Ensure there's a row for the current trigger in canvas and run vectors
+  
+  m_vecCstCanvas.push_back(std::vector<TCanvas*>());
+  //  m_vecCstRun.push_back(std::vector<int>());
+  m_vecCstRun.push_back(std::vector<TPad*>());
 
   m_vecCstCanvas.back().back()->cd(1);
   if (constituents_ncsts_cemc)
-  {
-    constituents_ncsts_cemc->SetTitle("Jet N Constituents in CEMC");
-    constituents_ncsts_cemc->SetXTitle("N Constituents");
-    constituents_ncsts_cemc->SetYTitle("Counts");
-    constituents_ncsts_cemc->GetXaxis()->SetNdivisions(505);
-    constituents_ncsts_cemc->GetXaxis()->SetRangeUser(-1, 15);
-    constituents_ncsts_cemc->DrawCopy("HIST"); //1D histogram
-    gPad->UseCurrentStyle();
-    gPad->SetLogy();
-    //gPad->SetLogz() //No z axis
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_ncsts_cemc->SetTitle("Jet N Constituents in CEMC");
+      constituents_ncsts_cemc->SetXTitle("N Constituents");
+      constituents_ncsts_cemc->SetYTitle("Counts");
+      constituents_ncsts_cemc->GetXaxis()->SetNdivisions(505);
+      constituents_ncsts_cemc->GetXaxis()->SetRangeUser(-1, 15);
+      constituents_ncsts_cemc->DrawCopy("HIST"); //1D histogram
+      gPad->UseCurrentStyle();
+      gPad->SetLogy();
+      //gPad->SetLogz() //No z axis
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(2);
   if (constituents_ncsts_ihcal)
-  {
-    constituents_ncsts_ihcal->SetTitle("Jet N Constituents in IHCal");
-    constituents_ncsts_ihcal->SetXTitle("N Constituents");
-    constituents_ncsts_ihcal->SetYTitle("Counts");
-    constituents_ncsts_ihcal->GetXaxis()->SetNdivisions(505);
-    constituents_ncsts_ihcal->DrawCopy("HIST"); // 1D histogram
-    gPad->UseCurrentStyle();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_ncsts_ihcal->SetTitle("Jet N Constituents in IHCal");
+      constituents_ncsts_ihcal->SetXTitle("N Constituents");
+      constituents_ncsts_ihcal->SetYTitle("Counts");
+      constituents_ncsts_ihcal->GetXaxis()->SetNdivisions(505);
+      constituents_ncsts_ihcal->DrawCopy("HIST"); // 1D histogram
+      gPad->UseCurrentStyle();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(3);
   if (constituents_ncsts_ohcal)
-  {
-    constituents_ncsts_ohcal->SetTitle("Jet N Constituents in OHCal");
-    constituents_ncsts_ohcal->SetXTitle("N Constituents");
-    constituents_ncsts_ohcal->SetYTitle("Counts");
-    constituents_ncsts_ohcal->GetXaxis()->SetNdivisions(505);
-    constituents_ncsts_ohcal->DrawCopy("HIST"); // 1D Histogram                             
-    gPad->UseCurrentStyle();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_ncsts_ohcal->SetTitle("Jet N Constituents in OHCal");
+      constituents_ncsts_ohcal->SetXTitle("N Constituents");
+      constituents_ncsts_ohcal->SetYTitle("Counts");
+      constituents_ncsts_ohcal->GetXaxis()->SetNdivisions(505);
+      constituents_ncsts_ohcal->DrawCopy("HIST"); // 1D Histogram                             
+      gPad->UseCurrentStyle();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(4);
   if (constituents_ncsts_total)
-  {
-    constituents_ncsts_total->SetTitle("Jet N Constituents");
-    constituents_ncsts_total->SetXTitle("N Constituents");
-    constituents_ncsts_total->GetXaxis()->SetNdivisions(505);
-    constituents_ncsts_total->SetYTitle("Counts");
-    constituents_ncsts_total->DrawCopy("HIST"); // 1D Histogram
-    gPad->UseCurrentStyle();
-  }
+    {
+      constituents_ncsts_total->SetTitle("Jet N Constituents");
+      constituents_ncsts_total->SetXTitle("N Constituents");
+      constituents_ncsts_total->GetXaxis()->SetNdivisions(505);
+      constituents_ncsts_total->SetYTitle("Counts");
+      constituents_ncsts_total->DrawCopy("HIST"); // 1D Histogram
+      gPad->UseCurrentStyle();
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(5);
   if (constituents_ncstsvscalolayer)
-  {
-    constituents_ncstsvscalolayer->SetTitle("Jet N Constituents vs Calo Layer");
-    constituents_ncstsvscalolayer->SetXTitle("N Constituents");
-    constituents_ncstsvscalolayer->SetYTitle("Calo Layer");
-    constituents_ncstsvscalolayer->SetZTitle("Counts");
-    constituents_ncstsvscalolayer->DrawCopy("COLZ"); // 2D Histogram
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_ncstsvscalolayer->SetTitle("Jet N Constituents vs Calo Layer");
+      constituents_ncstsvscalolayer->SetXTitle("N Constituents");
+      constituents_ncstsvscalolayer->SetYTitle("Calo Layer");
+      constituents_ncstsvscalolayer->SetZTitle("Counts");
+      constituents_ncstsvscalolayer->DrawCopy("COLZ"); // 2D Histogram
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(6);
   if (constituents_efracjetvscalolayer)
-  {
-    constituents_efracjetvscalolayer->SetTitle("Jet E Fraction vs Calo Layer");
-    constituents_efracjetvscalolayer->SetXTitle("Jet E Fraction");
-    constituents_efracjetvscalolayer->SetYTitle("Calo Layer");
-    constituents_efracjetvscalolayer->SetZTitle("Counts");
-    constituents_efracjetvscalolayer->DrawCopy("COLZ"); // 2D Histogram
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_efracjetvscalolayer->SetTitle("Jet E Fraction vs Calo Layer");
+      constituents_efracjetvscalolayer->SetXTitle("Jet E Fraction");
+      constituents_efracjetvscalolayer->SetYTitle("Calo Layer");
+      constituents_efracjetvscalolayer->SetZTitle("Counts");
+      constituents_efracjetvscalolayer->DrawCopy("COLZ"); // 2D Histogram
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(7);
   if (constituents_efracjet_cemc)
-  {
-    constituents_efracjet_cemc->SetTitle("Jet E Fraction in CEMC");
-    constituents_efracjet_cemc->SetXTitle("Jet E fraction");
-    constituents_efracjet_cemc->SetYTitle("Counts");
-    constituents_efracjet_cemc->DrawCopy("HIST"); // 1D Histogram
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_efracjet_cemc->SetTitle("Jet E Fraction in CEMC");
+      constituents_efracjet_cemc->SetXTitle("Jet E fraction");
+      constituents_efracjet_cemc->SetYTitle("Counts");
+      constituents_efracjet_cemc->DrawCopy("HIST"); // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(8);
   if (constituents_efracjet_ihcal)
-  {
-    constituents_efracjet_ihcal->SetTitle("Jet Fraction in IHCal");
-    constituents_efracjet_ihcal->SetXTitle("Jet E Fraction");
-    constituents_efracjet_ihcal->SetYTitle("Counts");
-    constituents_efracjet_ihcal->DrawCopy("HIST"); // 1D Histogram
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_efracjet_ihcal->SetTitle("Jet Fraction in IHCal");
+      constituents_efracjet_ihcal->SetXTitle("Jet E Fraction");
+      constituents_efracjet_ihcal->SetYTitle("Counts");
+      constituents_efracjet_ihcal->DrawCopy("HIST"); // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecCstCanvas.back().back()->cd(9);
   if (constituents_efracjet_ohcal)
-  {
-    constituents_efracjet_ohcal->SetTitle("Jet Fraction in OHCal");
-    constituents_efracjet_ohcal->SetXTitle("Jet E Fraction");
-    constituents_efracjet_ohcal->SetYTitle("Counts");
-    constituents_efracjet_ohcal->DrawCopy("HIST");  // 1D Histogram
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      constituents_efracjet_ohcal->SetTitle("Jet Fraction in OHCal");
+      constituents_efracjet_ohcal->SetXTitle("Jet E Fraction");
+      constituents_efracjet_ohcal->SetYTitle("Counts");
+      constituents_efracjet_ohcal->DrawCopy("HIST");  // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -522,12 +545,39 @@ int JetDraw::DrawConstituents(const uint32_t trigToDraw, const JetRes resToDraw)
   runstring += m_mapResToName[resToDraw];
   runstring += " Run ";
   runstring += runnostream.str();
-
+  /*
   // add runstring to relevant pad
   m_vecCstRun.back().back()->cd();
   PrintRun.DrawText(0.5, 0.95, runstring.data());  // Adjust coordinates as needed
   m_vecCstCanvas.back().back()->Update();  // Update the pad
+  */
+  // Group histograms into pages of three
+  for (size_t page = 0; page < constituents.size(); page += 3)
+    {
+      // Create a name for the canvas
+      const std::string canvasName = "jetCsts_" + m_mapTrigToTag[trigToDraw] + "_" +
+	m_mapResToTag[resToDraw] + "_page" + std::to_string(page / 3 + 1);
 
+      // Extract the histograms for this page
+      std::vector<TH1*> pageHists(constituents.begin() + page, 
+				  constituents.begin() + std::min(page + 3, constituents.size()));
+
+      // Create canvas and pads using MakeCanvas
+      MakeCanvas(canvasName, pageHists.size(), m_vecCstCanvas.back(), m_vecCstRun.back());
+
+      // Draw histograms on this canvas
+      for (size_t pad = 0; pad < pageHists.size(); ++pad)
+        {
+	  m_vecCstCanvas.back().back()->cd(pad + 1); // Go to the specific pad
+	  if (pageHists[pad])
+            {
+	      pageHists[pad]->Draw("HIST");
+            }
+        }
+
+      // Update the canvas after drawing all histograms
+      m_vecCstCanvas.back().back()->Update();
+    }
   // return w/o error
   return 0;
 }
@@ -571,90 +621,91 @@ int JetDraw::DrawJetKinematics(const uint32_t trigToDraw, const JetRes resToDraw
   // form canvas name & if it doesn't exist yet, create it
   const std::string kineCanName = "jetKinematics_" + m_mapTrigToTag[trigToDraw] + "_" + m_mapResToTag[resToDraw];
   if (!gROOT->FindObject(kineCanName.data()))
-  {
-    MakeCanvas(kineCanName, 4, m_vecKineCanvas.back(), m_vecKineRun.back());
-  }
+    {
+      MakeCanvas(kineCanName, 4, m_vecKineCanvas.back(), m_vecKineRun.back());
+    }
 
   m_vecKineCanvas.back().back()->cd(1);
   if (jetkinematiccheck_etavsphi)
-  {
-    jetkinematiccheck_etavsphi->SetTitle("Jet #eta vs #phi");
-    jetkinematiccheck_etavsphi->SetXTitle("Jet #eta");
-    jetkinematiccheck_etavsphi->SetYTitle("Jet #phi");
-    jetkinematiccheck_etavsphi->SetZTitle("Counts");
-    // jetkinematiccheck_etavsphi->GetXaxis()->SetNdivisions(505);
-    // jetkinematiccheck_etavsphi->GetXaxis()->SetRangeUser(-1, 15);
-    jetkinematiccheck_etavsphi->DrawCopy("COLZ");  // 2D Histogram
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      jetkinematiccheck_etavsphi->SetTitle("Jet #eta vs #phi");
+      jetkinematiccheck_etavsphi->SetXTitle("Jet #eta");
+      jetkinematiccheck_etavsphi->SetYTitle("Jet #phi");
+      jetkinematiccheck_etavsphi->SetZTitle("Counts");
+      // jetkinematiccheck_etavsphi->GetXaxis()->SetNdivisions(505);
+      // jetkinematiccheck_etavsphi->GetXaxis()->SetRangeUser(-1, 15);
+      jetkinematiccheck_etavsphi->DrawCopy("COLZ");  // 2D Histogram
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecKineCanvas.back().back()->cd(2);
   if (jetkinematiccheck_jetmassvseta && jetkinematiccheck_jetmassvseta_pfx)
-  {
-    jetkinematiccheck_jetmassvseta->SetTitle("Jet Mass vs #eta");
-    jetkinematiccheck_jetmassvseta->SetXTitle("Jet Mass [GeV/c^{2}]");
-    jetkinematiccheck_jetmassvseta->SetYTitle("Jet #eta");
-    jetkinematiccheck_jetmassvseta->SetZTitle("Counts");
-    jetkinematiccheck_jetmassvseta->DrawCopy("COLZ");  // 2D Histogram
-    jetkinematiccheck_jetmassvseta_pfx->SetTitle("Jet Mass vs #eta");
-    jetkinematiccheck_jetmassvseta_pfx->SetXTitle("Jet Mass [GeV/c^{2}]");
-    jetkinematiccheck_jetmassvseta_pfx->SetYTitle("Jet #eta");
-    jetkinematiccheck_jetmassvseta_pfx->SetZTitle("Counts");
-    jetkinematiccheck_jetmassvseta_pfx->DrawCopy("SAME");  // Profile
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      jetkinematiccheck_jetmassvseta->SetTitle("Jet Mass vs #eta");
+      jetkinematiccheck_jetmassvseta->SetXTitle("Jet #eta");
+      jetkinematiccheck_jetmassvseta->SetYTitle("Jet Mass [GeV/c^{2}]");
+      jetkinematiccheck_jetmassvseta->SetZTitle("Counts");
+      jetkinematiccheck_jetmassvseta->DrawCopy("COLZ");  // 2D Histogram
+      jetkinematiccheck_jetmassvseta_pfx->SetTitle("Jet Mass vs #eta");
+      jetkinematiccheck_jetmassvseta_pfx->SetXTitle("Jet #eta");
+      jetkinematiccheck_jetmassvseta_pfx->SetYTitle("Jet Mass [GeV/c^{2}]");
+      jetkinematiccheck_jetmassvseta_pfx->SetZTitle("Counts");
+      jetkinematiccheck_jetmassvseta_pfx->DrawCopy("SAME");  // Profile
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecKineCanvas.back().back()->cd(3);
   if (jetkinematiccheck_jetmassvspt && jetkinematiccheck_jetmassvspt_pfx)
-  {
-    jetkinematiccheck_jetmassvspt->SetTitle("Jet Mass vs p_{T}");
-    jetkinematiccheck_jetmassvspt->SetXTitle("Jet Mass [GeV/c^{2}]");
-    jetkinematiccheck_jetmassvspt->SetYTitle("Jet p_{T} [GeV/c]");
-    jetkinematiccheck_jetmassvspt->SetZTitle("Counts");
-    jetkinematiccheck_jetmassvspt->DrawCopy("COLZ");  // 2D Histogram
-    jetkinematiccheck_jetmassvspt_pfx->SetTitle("Jet Mass vs p_{T}");
-    jetkinematiccheck_jetmassvspt_pfx->SetXTitle("Jet Mass [GeV/c^{2}]");
-    jetkinematiccheck_jetmassvspt_pfx->SetYTitle("Jet p_{T} [GeV/c]");
-    jetkinematiccheck_jetmassvspt_pfx->SetZTitle("Counts");
-    jetkinematiccheck_jetmassvspt_pfx->DrawCopy("SAME");  // Profile
-    gPad->UseCurrentStyle();
-    gPad->Update();
-    gPad->SetRightMargin(0.15);
-  }
+    {
+      jetkinematiccheck_jetmassvspt->SetTitle("Jet Mass vs p_{T}");
+      jetkinematiccheck_jetmassvspt->SetXTitle("Jet p_{T} [GeV/c]");
+      jetkinematiccheck_jetmassvspt->SetYTitle("Jet Mass [GeV/c^{2}]");
+      jetkinematiccheck_jetmassvspt->SetZTitle("Counts");
+      jetkinematiccheck_jetmassvspt->DrawCopy("COLZ");  // 2D Histogram
+      jetkinematiccheck_jetmassvspt_pfx->SetTitle("Jet Mass vs p_{T}");
+      jetkinematiccheck_jetmassvspt_pfx->SetXTitle("Jet p_{T} [GeV/c]");
+      jetkinematiccheck_jetmassvspt_pfx->SetYTitle("Jet Mass [GeV/c^{2}]");
+      jetkinematiccheck_jetmassvspt_pfx->SetZTitle("Counts");
+      jetkinematiccheck_jetmassvspt_pfx->DrawCopy("SAME");  // Profile
+      gPad->UseCurrentStyle();
+      gPad->Update();
+      gPad->SetRightMargin(0.15);
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   m_vecKineCanvas.back().back()->cd(4);
   if (jetkinematiccheck_spectra)
-  {
-    jetkinematiccheck_spectra->SetTitle("Jet Spectra");
-    jetkinematiccheck_spectra->SetXTitle("p_{T,Jet} [GeV/c]");
-    jetkinematiccheck_spectra->SetYTitle("Counts");
-    jetkinematiccheck_spectra->DrawCopy("HIST");  // 1D Histogram
-    gPad->UseCurrentStyle();
-  }
+    {
+      jetkinematiccheck_spectra->SetTitle("Jet Spectra");
+      jetkinematiccheck_spectra->SetXTitle("p_{T,Jet} [GeV/c]");
+      jetkinematiccheck_spectra->SetYTitle("Counts");
+      jetkinematiccheck_spectra->DrawCopy("HIST");  // 1D Histogram
+      gPad->UseCurrentStyle();
+      gPad->SetLogy();
+    }
   else
-  {
-    // histogram is missing
-    return -1;
-  }
+    {
+      // histogram is missing
+      return -1;
+    }
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -723,13 +774,13 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
   // form canvas name & if it doesn't exist yet, create it
   const std::string seedCanName = "jetSeeds_" + m_mapTrigToTag[trigToDraw] + "_" + m_mapResToTag[resToDraw];
   if (!gROOT->FindObject(seedCanName.data()))
-  {
-    MakeCanvas(seedCanName, 8, m_vecSeedCanvas.back(), m_vecSeedRun.back());
-  }
+    {
+      MakeCanvas(seedCanName, 8, m_vecSeedCanvas.back(), m_vecSeedRun.back());
+    }
 
   m_vecSeedCanvas.back().back()->cd(1);
   if (jetseedcount_rawetavsphi)
-  {
+    {
       jetseedcount_rawetavsphi->SetLineColor(kBlue);
       jetseedcount_rawetavsphi->GetXaxis()->SetRangeUser(0.0, 12000);
       jetseedcount_rawetavsphi->SetTitle("Raw Seed #eta vs #phi");
@@ -835,17 +886,17 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
   else
   {
     return -1;
-  }
+}
 
   m_vecSeedCanvas.back().back()->cd(8);
   if (jetseedcount_subseedcount)
-  {
-    jetseedcount_subseedcount->SetTitle("Sub Seed Count per Event");
-    jetseedcount_subseedcount->SetXTitle("Sub Seed Count per Event");
-    jetseedcount_subseedcount->SetYTitle("Counts");
-    jetseedcount_subseedcount->DrawCopy("");
-    gPad->UseCurrentStyle();
-  }
+    {
+  jetseedcount_subseedcount->SetTitle("Sub Seed Count per Event");
+  jetseedcount_subseedcount->SetXTitle("Sub Seed Count per Event");
+  jetseedcount_subseedcount->SetYTitle("Counts");
+  jetseedcount_subseedcount->DrawCopy("");
+  gPad->UseCurrentStyle();
+}
 
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -875,135 +926,135 @@ int JetDraw::DrawJetSeed(const uint32_t trigToDraw, const JetRes resToDraw)
   return 0;
 }
 
-int JetDraw::DBVarInit()
-{
+ int JetDraw::DBVarInit()
+ {
   /* db = new QADrawDB(this); */
   /* db->DBInit(); */
   return 0;
 }
 
-void JetDraw::SetJetSummary(TCanvas* c)
-{
-   jetSummary = c;
-   jetSummary->cd();
+ void JetDraw::SetJetSummary(TCanvas* c)
+ {
+  jetSummary = c;
+  jetSummary->cd();
 
-   QADrawClient *cl = QADrawClient::instance();
-   TPad* tr = new TPad("transparent_jet", "", 0, 0, 1, 1);
-   tr->SetFillStyle(4000);
-   tr->Draw();
-   TText PrintRun;
-   PrintRun.SetTextFont(62);
-   PrintRun.SetTextSize(0.04);
-   PrintRun.SetNDC();          // set to normalized coordinates                                                                                                                                                                                                                  
-   PrintRun.SetTextAlign(23);  // center/top alignment                                                                                                                                                                                                                           
-   std::ostringstream runnostream;
-   std::string runstring;
-   runnostream << Name() << "_jet_summary Run " << cl->RunNumber() << ", build " << cl->build();
-   runstring = runnostream.str();
-   tr->cd();
-   PrintRun.DrawText(0.5, 1., runstring.c_str());
-   jetSummary->Update();
+  QADrawClient *cl = QADrawClient::instance();
+  TPad* tr = new TPad("transparent_jet", "", 0, 0, 1, 1);
+  tr->SetFillStyle(4000);
+  tr->Draw();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates                                                                                                                                                                                                                  
+  PrintRun.SetTextAlign(23);  // center/top alignment                                                                                                                                                                                                                           
+  std::ostringstream runnostream;
+  std::string runstring;
+  runnostream << Name() << "_jet_summary Run " << cl->RunNumber() << ", build " << cl->build();
+  runstring = runnostream.str();
+  tr->cd();
+  PrintRun.DrawText(0.5, 0.95, runstring.c_str());
+  jetSummary->Update();
 }
 
-void JetDraw::SetDoDebug(const bool debug)
-{
+ void JetDraw::SetDoDebug(const bool debug)
+ {
   m_do_debug = debug;
 }
 
-// ----------------------------------------------------------------------------
-//! Save canvases to file
-// ----------------------------------------------------------------------------
-/*! Helper method to save all canvases to
+ // ----------------------------------------------------------------------------
+ //! Save canvases to file
+ // ----------------------------------------------------------------------------
+ /*! Helper method to save all canvases to
  *  a specified file. This is useful for
  *  debugging and quick testing when
- *  adjusting plotting details/etc.
+  adjusting plotting details/etc.
  */
-void JetDraw::SaveCanvasesToFile(TFile* file)
-{
-
-  // emit debugging message
-  if (m_do_debug)
-  {
-    std::cout << "Saving plots to file:\n"
-              << "  " << file -> GetName()
-              << std::endl;
-  }
-
-  // check if you can cd into file
-  //   - if not, exit
-  const bool isGoodCD = file -> cd();
-  if (!isGoodCD)
-  {
-    if (m_do_debug)
-    {
-      std::cerr << PHWHERE << "WARNING: couldn't cd into output file!" << std::endl;
-    }
-    return;
-  }
-
-  // for tracking how many plots were saved
-  std::size_t nWrite = 0;
-
-  // save rho canvases
-  for (auto rho : m_vecRhoCanvas)
-  {
-    rho -> Draw();
-    rho -> Write();
-    ++nWrite;
-  }
-  if (m_do_debug) std::cout << "  -- Saved rho plots." << std::endl;
-
-  // save constituent canvases
-  for (auto cstRow : m_vecCstCanvas)
-  {
-    for (auto cst : cstRow)
-    {
-      cst -> Draw();
-      cst -> Write();
-      ++nWrite;
-    }
-  }
-  if (m_do_debug) std::cout << "  -- Saved constituent plots." << std::endl;
-
-  // save kinematics canvases
-  for (auto kinRow : m_vecKineCanvas)
-  {
-    for (auto kin : kinRow)
-    {
-      kin -> Draw();
-      kin -> Write();
-      ++nWrite;
-    }
-  }
-  if (m_do_debug) std::cout << "  -- Saved kinematic plots." << std::endl;
-
-  // save seed canvases
-  for (auto sedRow : m_vecSeedCanvas)
-  {
-    for (auto sed : sedRow)
-    {
-      sed -> Draw();
-      sed -> Write();
-      ++nWrite;
-    }
-  }
+ void JetDraw::SaveCanvasesToFile(TFile* file)
+ {
+   
+   // emit debugging message
+   if (m_do_debug)
+     {
+       std::cout << "Saving plots to file:\n"
+		 << "  " << file -> GetName()
+		 << std::endl;
+     }
+   
+   // check if you can cd into file
+   //   - if not, exit
+   const bool isGoodCD = file -> cd();
+   if (!isGoodCD)
+     {
+       if (m_do_debug)
+	 {
+	   std::cerr << PHWHERE << "WARNING: couldn't cd into output file!" << std::endl;
+	 }
+       return;
+     }
+   
+   // for tracking how many plots were saved
+   std::size_t nWrite = 0;
+   
+   // save rho canvases
+   for (auto rho : m_vecRhoCanvas)
+     {
+       rho -> Draw();
+       rho -> Write();
+       ++nWrite;
+     }
+   if (m_do_debug) std::cout << "  -- Saved rho plots." << std::endl;
+   
+   // save constituent canvases
+   for (auto cstRow : m_vecCstCanvas)
+     {
+       for (auto cst : cstRow)
+	 {
+	   cst -> Draw();
+	   cst -> Write();
+	   ++nWrite;
+	 }
+     }
+   if (m_do_debug) std::cout << "  -- Saved constituent plots." << std::endl;
+   
+   // save kinematics canvases
+   for (auto kinRow : m_vecKineCanvas)
+     {
+       for (auto kin : kinRow)
+	 {
+	   kin -> Draw();
+	   kin -> Write();
+	   ++nWrite;
+	 }
+     }
+   if (m_do_debug) std::cout << "  -- Saved kinematic plots." << std::endl;
+   
+   // save seed canvases
+   for (auto sedRow : m_vecSeedCanvas)
+     {
+       for (auto sed : sedRow)
+	 {
+	   sed -> Draw();
+	   sed -> Write();
+	   ++nWrite;
+	 }
+     }
   if (m_do_debug) std::cout << "  -- Saved seed plots." << std::endl;
-
+  
   // announce how many plots saved & exit
   if (m_do_debug)
-  {
-    std::cout << "Finished saving plots: " << nWrite << " plots written." << std::endl;
-  }
+    {
+      std::cout << "Finished saving plots: " << nWrite << " plots written." << std::endl;
+    }
   return;
-
-}  // end 'SaveCanvasesToFile(TFile*)'
-
-void JetDraw::myText(double x, double y, int color, const char *text, double tsize)
-{
-  TLatex l;
-  l.SetTextAlign(22);
-  l.SetTextSize(tsize);
-  l.SetNDC();
-  l.SetTextColor(color);
-  l.DrawLatex(x, y, text);
-}
+  
+ }  // end 'SaveCanvasesToFile(TFile*)'
+ 
+ void JetDraw::myText(double x, double y, int color, const char *text, double tsize)
+ {
+   TLatex l;
+   l.SetTextAlign(22);
+   l.SetTextSize(tsize);
+   l.SetNDC();
+   l.SetTextColor(color);
+   l.DrawLatex(x, y, text);
+ }

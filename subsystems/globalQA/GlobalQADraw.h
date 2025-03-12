@@ -29,7 +29,9 @@ class GlobalQADraw : public QADraw
   QADrawDB *db{nullptr};
   TCanvas *TC[3]{};
   TPad *transparent[3]{};
-  TPad *Pad[3][5]{};
+  TPad *Pad[3][7]{};
+  int run_type = 0; // AuAu= 0 , pp=1
+  
 };
 
 #endif

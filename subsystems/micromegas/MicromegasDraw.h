@@ -3,23 +3,15 @@
 
 #include <qahtml/QADraw.h>
 
-#include <vector>
-
-class QADB;
-class QADBVar;
 class TCanvas;
-class TGraphErrors;
 class TPad;
-class TH1F;
-class TH2F;
-class TGraph;
-class TLegend;
+class TH1;
+class TH2;
 
 class MicromegasDraw : public QADraw
 {
- public: 
+ public:
   MicromegasDraw(const std::string &name = "MicromegasQA");
-  ~MicromegasDraw() override;
 
   int Draw(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
@@ -27,9 +19,7 @@ class MicromegasDraw : public QADraw
 
  private:
   int MakeCanvas(const std::string &name, int num);
-  TH1F* ClusterAverage(TH2F*, std::string);
-  int BinValues(TH1F*);
-  int DrawTileInfo();
+  TH1* ClusterAverage(TH2*, std::string);
   int DrawClusterInfo();
   int DrawBCOInfo();
   TCanvas *TC[4]{};

@@ -8,13 +8,13 @@ import time
 import argparse
 import hashlib
 
-track_hist_types = ["HIST_DST_TRKR_CLUSTER","HIST_DST_TRKR_SEED"]
-#for i in range(24):
-    #track_hist_types.append(("HIST_DST_STREAMING_EVENT_TPC{:02d}").format(i))
-#    if i < 8:
-#        track_hist_types.append("HIST_DST_STREAMING_EVENT_INTT"+str(i))
-#    if i < 6:
-#        track_hist_types.append("HIST_DST_STREAMING_EVENT_MVTX"+str(i))
+track_hist_types = ["HIST_DST_STREAMING_EVENT_TPOT"]
+for i in range(24):
+    track_hist_types.append(("HIST_DST_STREAMING_EVENT_TPC{:02d}").format(i))
+    if i < 8:
+        track_hist_types.append("HIST_DST_STREAMING_EVENT_INTT"+str(i))
+    if i < 6:
+        track_hist_types.append("HIST_DST_STREAMING_EVENT_MVTX"+str(i))
 
 
 runtypes = ["_run3auau"]
@@ -148,20 +148,10 @@ def main():
                        continue
                     command.append(str(newpath))
                     nfiles+=1
-                    # don't need loads of statistics for these, and it just clogs the aggregation processing
-                    if histtype.find("CLUSTER") != -1:
-                        if nfiles == 10:
-                            break;
-                    elif nfiles > 100:
-                        break
-                # wait for at least 10 files
-                if nfiles < 10:
-                    print("not enough files")
-                    continue
                 if args.verbose:
-                    print("executing command")
+                    print("executing command for "+str(nfiles) + " files")
                     print(command)
-                
+                    
                 if not args.test:
                     subprocess.run(command)
                     

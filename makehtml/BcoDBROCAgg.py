@@ -8,16 +8,13 @@ import time
 import argparse
 import hashlib
 
-track_hist_types = ["HIST_DST_TRKR_CLUSTER","HIST_DST_TRKR_SEED"]
-#for i in range(24):
-    #track_hist_types.append(("HIST_DST_STREAMING_EVENT_TPC{:02d}").format(i))
-#    if i < 8:
-#        track_hist_types.append("HIST_DST_STREAMING_EVENT_INTT"+str(i))
-#    if i < 6:
-#        track_hist_types.append("HIST_DST_STREAMING_EVENT_MVTX"+str(i))
+NROCS = [6,8,24]
 
+hist_types = ["HIST_DST_STREAMING_EVENT_MVTX", "HIST_DST_STREAMING_EVENT_INTT","HIST_DST_STREAMING_EVENT_TPC"]
 
 runtypes = ["_run3auau"]
+aggDirectory = "/sphenix/data/data02/sphnxpro/QAhtml/aggregated/"
+    
 
 parser = argparse.ArgumentParser(description="Aggregate the QA histogram files produced for each DST segment of a run into a single QA histogram file per run.")
 parser.add_argument("-v","--verbose",help="add additional printing", action="store_true")
@@ -28,7 +25,6 @@ if args.test and not args.verbose:
 print("Verbose is " + str(args.verbose))
 print("Test is " + str(args.test))
 
-
 def get_unique_run_dataset_pairs(cursor, type, runtype):
     dsttype = type + runtype
     query = "SELECT runnumber, dataset FROM datasets WHERE dsttype='{}' GROUP BY runnumber, dataset;".format(dsttype)
@@ -37,55 +33,63 @@ def get_unique_run_dataset_pairs(cursor, type, runtype):
     runnumbers = {(row.runnumber, row.dataset) for row in cursor.fetchall()}
     return runnumbers
 
-def getPaths(cursor, run, dataset, type, runtype):
-    dsttype = type + runtype
-    query = "SELECT files.full_file_path FROM files,datasets WHERE datasets.runnumber={} AND datasets.dataset='{}' AND datasets.dsttype='{}' AND files.lfn=datasets.filename".format(run,dataset,dsttype)
-    if args.verbose == True:
-        print(query)
-    cursor.execute(query)
-    filepaths = {(row.full_file_path) for row in cursor.fetchall()}
-    return filepaths
 
-def getBuildDbTag(type, filename):
-    parts = filename.split(os.sep)
-    index = parts.index(type[1:])
-    return parts[index+2]
+def get_aggregated_file(cursor, dsttype, runnumber):
+    query = "SELECT full_file_path FROM files WHERE lfn in (select filename from datasets files where dsttype='{}' and segment=9999 and runnumber='{}')".format(dsttype,runnumber)
+    #if args.verbose:
+        #print(query)
+    cursor.execute(query)
+    returnfile = ""
+    # there is only ever one return for this query
+    for row in cursor.fetchall():
+        returnfile = row[0]
+    return returnfile
+  
+
 
 def main():
-    import time
+    FCRead = pyodbc.connect("DSN=FileCatalog_read;UID=phnxrc;READONLY=True")
+    FCReadCursor = FCRead.cursor()
     FCWrite = pyodbc.connect("DSN=FileCatalog;UID=phnxrc")
-    FCWritecursor = FCWrite.cursor()
-    conn = pyodbc.connect("DSN=FileCatalog_read;UID=phnxrc;READONLY=True")
-    cursor = conn.cursor()
-    aggDirectory = "/sphenix/data/data02/sphnxpro/QAhtml/aggregated/"
+    FCWriteCursor = FCWrite.cursor()
     for runtype in runtypes:
-        for histtype in track_hist_types:
-            if args.verbose == True:
-                print("hist type is: " + histtype)
-            runs_dbtags = get_unique_run_dataset_pairs(cursor, histtype, runtype)
-
-            for run, dbtag in runs_dbtags:
-                print("Processing run " + str(run))
-                filepaths = getPaths(cursor, run, dbtag, histtype, runtype)
-                if args.verbose == True:
-                    print("all total filepaths")
-                    print(filepaths)
-                    
-                tags = next(iter(filepaths)).split(os.sep)
+        for subsystemID in range(3):
+            nrocs = NROCS[subsystemID]
+            hist = hist_types[subsystemID]
+            # just use the 0th one to get the run/db range once per subsystem instead of for each ROC
+            dummyhisttype = hist+"0"
+            if hist.find("TPC") != -1:
+                dummyhisttype = hist+"00"
+            for run, dbtag in get_unique_run_dataset_pairs(FCReadCursor, dummyhisttype, runtype): 
+                filesToAdd = []
+                for ROC in range(nrocs):
+                    histtype = hist+str(ROC)
+                    if hist.find("TPC") != -1:
+                        histtype = hist+"{:02d}".format(ROC)
+                    thisfile = get_aggregated_file(FCReadCursor, histtype, run)
+                    if len(thisfile) > 0:
+                        filesToAdd.append(thisfile)
+                if args.verbose :
+                    print(filesToAdd)
+                if len(filesToAdd) == 0:
+                    # nothing to add, move on
+                    continue
+                print(filesToAdd[0])
+                tags = (filesToAdd[0]).split(os.sep)
                 index = tags.index(runtype[1:])
                 collisiontag = tags[index]
                 beamtag = tags[index+1]
                 anadbtag = dbtag
-                dsttypetag = tags[index+3]
+                dsttypetag = hist
                 rundirtag = tags[index+4]
-                
                 # make an analogous path to the production DST in sphenix/data
                 completeAggDir = aggDirectory + collisiontag + "/" + beamtag + "/" + anadbtag + "/" + dsttypetag + "/" + rundirtag + "/"
                 if args.verbose == True:
                     print("aggregated directory")
                     print(completeAggDir)
+                
                 #check for a similar file in this dir
-                filepathWildcard = completeAggDir + histtype + "*" + dbtag + "*" + str(run) + "*"
+                filepathWildcard = completeAggDir + hist + "*" + dbtag + "*" + str(run) + "*"
                 if not os.path.isdir(completeAggDir):
                     if args.verbose == True:
                         print("making a new aggregated dir")
@@ -93,75 +97,45 @@ def main():
                         os.makedirs(completeAggDir, exist_ok=True)
 
                 filepath = glob.glob(filepathWildcard)
-
+                
                 path = ""
                 aggFileTime = 0
                 if len(filepath) > 0:
                     path = filepath[0]
                     aggFileTime = os.path.getmtime(path)
                 
-
-                #need to figure out the latest db tag
-                latestdbtag= ""
-                latestdbtagInt = 0
-                for newpath in filepaths:
-                    thistag = getBuildDbTag(runtype, newpath)
-                    tags = thistag.split("_")
-                    if tags[1].find("nocdbtag") != -1:
-                        latestdbtag=thistag
-                        break
-                    if int(tags[1].split("p")[1]) > latestdbtagInt:
-                        latestdbtag=thistag
-                        latestdbtagInt = int(tags[1].split("p")[1])
-
                 reagg=False
                 if len(path) == 0:
                     reagg=True
                 newFileTime = 0
-                if reagg == False:
-                    for newpath in filepaths:
-                        if newpath.find(latestdbtag) == -1:
-                            continue
-                        if os.path.getmtime(newpath) > newFileTime:
-                            newFileTime = os.path.getmtime(newpath)
-                        if os.path.getmtime(newpath) > aggFileTime:
-                            reagg = True
-                            break
+                for rocpath in filesToAdd:
+                    if os.path.getmtime(rocpath) > newFileTime:
+                        newFileTime = os.path.getmtime(rocpath)
+                    if os.path.getmtime(rocpath) > aggFileTime:
+                        reagg = True
+                        break
+                    
                 if args.verbose == True:
                     print("Agg file " + path + "  time is " + str(aggFileTime))
                     print("latest new file time is " + str(newFileTime))
+                
                 if reagg == False:
                     continue
-                filestoadd = []
-                nfiles = 0
-                lfn = histtype + runtype + "_" + dbtag + "-{:08d}-9999.root".format(run)
+
+                lfn = hist + runtype + "_" + dbtag + "-{:08d}-9999.root".format(run)
                 
                 path = completeAggDir + lfn
-
                 if args.verbose == True:
                     print ("lfn is " + lfn)
                     print("agg file path is " + path)
                 command = ["hadd","-ff",path]
-                for newpath in filepaths:
-                    # make sure the file has the same db tag
-                    if newpath.find(latestdbtag) == -1: 
-                       continue
-                    command.append(str(newpath))
-                    nfiles+=1
-                    # don't need loads of statistics for these, and it just clogs the aggregation processing
-                    if histtype.find("CLUSTER") != -1:
-                        if nfiles == 10:
-                            break;
-                    elif nfiles > 100:
-                        break
-                # wait for at least 10 files
-                if nfiles < 10:
-                    print("not enough files")
-                    continue
+            
+                for rocpath in filesToAdd:
+                    command.append(str(rocpath))
                 if args.verbose:
-                    print("executing command")
+                    print("executing command for "+str(len(filesToAdd)) + " files")
                     print(command)
-                
+
                 if not args.test:
                     subprocess.run(command)
                     
@@ -204,13 +178,19 @@ def main():
                     dsttype=EXCLUDED.dsttype,
                     events=EXCLUDED.events
                     ;
-                    """.format(lfn,run,size,dbtag,histtype)
+                    """.format(lfn,run,size,dbtag,hist)
                     if args.verbose :
                         print(insertquery)
                     FCWritecursor.execute(insertquery)
                     
                     FCWritecursor.commit()
-    conn.close()
+
+                    
+
     FCWrite.close()
+    FCRead.close()
+    
 if __name__ == "__main__":
     main()
+
+    

@@ -415,6 +415,10 @@ int QADrawClient::CanvasToPng(TCanvas *canvas, std::string const &pngfilename)
   char *tmpname = tempnam("/tmp", "TC");
   canvas->Print(tmpname, "gif");  // write gif format
   TImage *img = TImage::Open(tmpname);
+  if(Verbosity() > 0)
+  {
+    std::cout << "png file name " << pngfilename.c_str() << std::endl;
+  }
   img->WriteImage(pngfilename.c_str());
   delete img;
   remove(tmpname);

@@ -1403,7 +1403,7 @@ int TpcSeedsDraw::DrawdEdxInfo2()
       float xpos_z0 = landauFit_z0->GetParameter(0);
       float xpos_z4 = landauFit_z4->GetParameter(0);
       float z0_to_z4_ratio = xpos_z0 / xpos_z4;
-      if (isnan(z0_to_z4_ratio))
+      if (std::isnan(z0_to_z4_ratio))
       {
         xpos_z0 = -1;
         xpos_z4 = -1;
@@ -1492,7 +1492,7 @@ int TpcSeedsDraw::DrawdEdxInfo2()
       float xpos_z9 = landauFit_z9->GetParameter(0);
       float xpos_z5 = landauFit_z5->GetParameter(0);
       float z9_to_z5_ratio = xpos_z9 / xpos_z5;
-      if (isnan(z9_to_z5_ratio))
+      if (std::isnan(z9_to_z5_ratio))
       {
         xpos_z9 = -1;
         xpos_z5 = -1;

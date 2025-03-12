@@ -187,7 +187,7 @@ int TPCDraw::DrawChannelHits()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_tpc Hits Run " << cl->RunNumber();
+    runnostream1 << Name() << "_tpc Hits Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[quad]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -246,7 +246,7 @@ int TPCDraw::DrawChannelADCs()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_tpc ADC Run " << cl->RunNumber();
+    runnostream1 << Name() << "_tpc ADC Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[quad + 6]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -319,7 +319,7 @@ int TPCDraw::DrawClusterInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_tpc_cluster_info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_tpc_cluster_info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[12]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -389,7 +389,7 @@ int TPCDraw::DrawRegionInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_tpc_region_info Run " << cl->RunNumber();
+    runnostream1 << Name() << "_tpc_region_info Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[13+k]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -452,7 +452,7 @@ int TPCDraw::DrawRegionInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_tpc_region_info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_tpc_region_info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[18]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());

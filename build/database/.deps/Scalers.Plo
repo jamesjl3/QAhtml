@@ -1,0 +1,4 @@
+Scalers.lo: ../../database/Scalers.cc /usr/include/stdc-predef.h \
+ ../../database/Scalers.h
+/usr/include/stdc-predef.h:
+../../database/Scalers.h:

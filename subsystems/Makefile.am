@@ -11,6 +11,7 @@ SUBDIRS = \
 	globalQA \
   intt \
   inttrawhit \
+  jets \
   micromegas \
   mvtx \
   mvtxrawhit \

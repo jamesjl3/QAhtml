@@ -271,7 +271,7 @@ int BCODraw::DrawMVTX()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_mvtx evt building Run " << cl->RunNumber();
+  runnostream1 << Name() << "_mvtx evt building Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -416,7 +416,7 @@ int BCODraw::DrawINTT()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_intt evt building Run " << cl->RunNumber();
+  runnostream1 << Name() << "_intt evt building Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[2]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -544,7 +544,7 @@ int BCODraw::DrawTPC()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_tpc evt building Run " << cl->RunNumber();
+  runnostream1 << Name() << "_tpc evt building Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[4]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -606,8 +606,9 @@ int BCODraw::DrawTPOT()
     text->SetFillStyle(0);
     text->SetBorderSize(0);
     text->SetTextAlign(11);
-    text->AddText( Form( "Runnumber: %i", cl->RunNumber() ) );
-    text->AddText( Form( "Triggers: %.3g", double(norm) ) );
+    text->AddText( (boost::format( "Runnumber: %i") % cl->RunNumber() ).str().c_str() );
+    text->AddText( (boost::format("build: %s") % cl->build()).str().c_str() );
+    text->AddText( (boost::format( "Triggers: %.3g") % double(norm) ).str().c_str() );
     text->Draw();
     gPad->SetLeftMargin(0.15);     
   }

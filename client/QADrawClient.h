@@ -49,6 +49,8 @@ class QADrawClient : public Fun4AllBase
   int RunNumber() const { return runnumber; }
   void RunNumber(const int runno);
   std::string RunTime();
+  std::string build() const { return m_build; }
+  void build(const std::string build) { m_build = build;}
 
   void SetDisplaySizeX(const int xsize) { display_sizex = xsize; }
   void SetDisplaySizeY(const int ysize) { display_sizey = ysize; }
@@ -59,6 +61,7 @@ class QADrawClient : public Fun4AllBase
 
   int SaveLogFile(const QADraw &drawer);
   int ExtractRunNumber(const std::string &fname);
+  std::string ExtractBuild(const std::string &fname);
 
   std::string RunType();
   int EventsInRun();
@@ -74,6 +77,7 @@ class QADrawClient : public Fun4AllBase
   QAHtml *fHtml{nullptr};
   QARunDBodbc *rdb{nullptr};
   int runnumber{0};
+  std::string m_build = "";
   int display_sizex{0};
   int display_sizey{0};
   TStyle *defaultStyle{nullptr};

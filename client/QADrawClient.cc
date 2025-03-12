@@ -300,7 +300,24 @@ void QADrawClient::Print(const std::string &what) const
   }
   return;
 }
+std::string QADrawClient::ExtractBuild(const std::string& filename)
+{
+  std::string build = "";
+  std::vector<std::string> tokens = tokenize(filename, '_');
+  for (auto token : tokens)
+    {
+      if(token.find("new") != std::string::npos)
+	{
+	  build = "new";
+	}
+      else if (token.find("ana") != std::string::npos)
+	{
+	  build = token; 
+	}
+    }
 
+  return build;
+}
 int QADrawClient::ReadHistogramsFromFile(const std::string &filename)
 {
   TDirectory *save = gDirectory;  // save current dir (which will be overwritten by the following fileopen)
@@ -311,7 +328,7 @@ int QADrawClient::ReadHistogramsFromFile(const std::string &filename)
     return -1;
   }
   save->cd();
-
+  build(ExtractBuild(filename));
   RunNumber(ExtractRunNumber(filename));
   TIterator *titer = histofile->GetListOfKeys()->MakeIterator();
   TObject *obj;
@@ -398,6 +415,10 @@ int QADrawClient::CanvasToPng(TCanvas *canvas, std::string const &pngfilename)
   char *tmpname = tempnam("/tmp", "TC");
   canvas->Print(tmpname, "gif");  // write gif format
   TImage *img = TImage::Open(tmpname);
+  if(Verbosity() > 0)
+  {
+    std::cout << "png file name " << pngfilename.c_str() << std::endl;
+  }
   img->WriteImage(pngfilename.c_str());
   delete img;
   remove(tmpname);

@@ -113,8 +113,8 @@ int INTTChipDrawer::DrawCanvas()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  // runnostream1 << Name() << "_intt Info Run " << cl->RunNumber();
-  runnostream1 << "INTTQA_intt Info Run " << cl->RunNumber();
+  // runnostream1 << Name() << "_intt Info Run " << cl->RunNumber() << ", build " << cl->build();
+  runnostream1 << "INTTQA_intt Info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());

@@ -89,7 +89,7 @@ int INTTRawHitChipDrawer::DrawCanvas()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << "Server " << m_which_intt << " FEE Hit Count Run " << cl->RunNumber();
+  runnostream1 << "Server " << m_which_intt << " FEE Hit Count Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
 
   m_canvas->cd(15);

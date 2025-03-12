@@ -176,7 +176,7 @@ int TPCRawHitDraw::DrawSectorInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_nhits Run " << cl->RunNumber();
+    runnostream1 << Name() << "_nhits Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[q]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -216,7 +216,7 @@ int TPCRawHitDraw::DrawSectorInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_nhits_fees Run " << cl->RunNumber();
+    runnostream1 << Name() << "_nhits_fees Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[q + 4]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -260,7 +260,7 @@ int TPCRawHitDraw::DrawSectorInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_nhits_laser Run " << cl->RunNumber();
+    runnostream1 << Name() << "_nhits_laser Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[q+8]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -300,7 +300,7 @@ int TPCRawHitDraw::DrawSectorInfo()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_nhits_fees_laser Run " << cl->RunNumber();
+    runnostream1 << Name() << "_nhits_fees_laser Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[q + 12]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -423,7 +423,7 @@ int TPCRawHitDraw::DrawOnlMon()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_Sample Time Dist Run " << cl->RunNumber();
+    runnostream1 << Name() << "_Sample Time Dist Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[q + 16]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -500,7 +500,7 @@ int TPCRawHitDraw::DrawOnlMon()
     PrintRun.SetTextAlign(23); // center/top alignment
     std::ostringstream runnostream1;
     std::string runstring1;
-    runnostream1 << Name() << "_adc Run " << cl->RunNumber();
+    runnostream1 << Name() << "_adc Run " << cl->RunNumber() << ", build " << cl->build();
     runstring1 = runnostream1.str();
     transparent[q + 20]->cd();
     PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -833,7 +833,7 @@ int TPCRawHitDraw::DrawOnlMon()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_hitsXY Run " << cl->RunNumber();
+  runnostream1 << Name() << "_hitsXY Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[24]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());

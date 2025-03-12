@@ -30,6 +30,7 @@ AC_CONFIG_FILES([
   subsystems/globalQA/Makefile
   subsystems/intt/Makefile
   subsystems/inttrawhit/Makefile
+  subsystems/jets/Makefile
   subsystems/micromegas/Makefile
   subsystems/mvtx/Makefile
   subsystems/mvtxrawhit/Makefile

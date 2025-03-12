@@ -169,7 +169,7 @@ int MVTXDraw::DrawChipInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_mvtx Info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_mvtx Info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -290,7 +290,7 @@ int MVTXDraw::DrawClusterInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_mvtx Info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_mvtx Info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[1]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -346,7 +346,7 @@ int MVTXDraw::DrawSummaryInfo()
   l->SetTextAlign(textalign);
   l->SetTextSize(titletextsize);
   l->SetTextColor(kBlack);
-  l->DrawLatex(textposx, 0.9, (boost::format("MVTX Cluster QA Summary - Run %d") % cl->RunNumber()).str().c_str());
+  l->DrawLatex(textposx, 0.9, (boost::format("MVTX Cluster QA Summary - Run %d, build %s") % cl->RunNumber() % cl->build()).str().c_str());
   
   if (scaledchi2ndf < scaledchi2ndf_good)
   {
@@ -503,7 +503,7 @@ int MVTXDraw::DrawSummaryInfo()
   PrintRun.SetTextAlign(23); // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << Name() << "_mvtx Info Run " << cl->RunNumber();
+  runnostream1 << Name() << "_mvtx Info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   transparent[2]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());

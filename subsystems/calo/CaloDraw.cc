@@ -424,15 +424,15 @@ int CaloDraw::DrawCemc()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1, runnostream2, runnostream3, runnostream4, runnostream5;
   std::string runstring1, runstring2, runstring3, runstring4, runstring5;
-  runnostream1 << Name() << "_cemc_towers Run " << cl->RunNumber();
+  runnostream1 << Name() << "_cemc_towers Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
-  runnostream2 << Name() << "_cemc_clusters Run " << cl->RunNumber();
+  runnostream2 << Name() << "_cemc_clusters Run " << cl->RunNumber() << ", build " << cl->build();
   runstring2 = runnostream2.str();
-  runnostream3 << Name() << "_cemc_tower_masking Run " << cl->RunNumber();
+  runnostream3 << Name() << "_cemc_tower_masking Run " << cl->RunNumber() << ", build " << cl->build();
   runstring3 = runnostream3.str();
-  /* runnostream4 << Name() << "_cemc_summary Run " << cl->RunNumber(); */
+  /* runnostream4 << Name() << "_cemc_summary Run " << cl->RunNumber() << ", build " << cl->build(); */
   /* runstring4 = runnostream4.str(); */
-  runnostream5 << Name() << "_cemc_pedestal_RMS_ Run " << cl->RunNumber();
+  runnostream5 << Name() << "_cemc_pedestal_RMS_ Run " << cl->RunNumber() << ", build " << cl->build();
   runstring5 = runnostream5.str();
   transparent[0]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -644,13 +644,13 @@ int CaloDraw::DrawIhcal()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1,runnostream2, runnostream3, runnostream4;
   std::string runstring1, runstring2, runstring3, runstring4;
-  runnostream1 << Name() << "_ihcal Run " << cl->RunNumber();
+  runnostream1 << Name() << "_ihcal Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
-  runnostream2 << Name() << "_ihcal_tower_masking Run " << cl->RunNumber();
+  runnostream2 << Name() << "_ihcal_tower_masking Run " << cl->RunNumber() << ", build " << cl->build();
   runstring2 = runnostream2.str();
-  // runnostream3 << Name() << "_ihcal_summary Run " << cl->RunNumber(); 
+  // runnostream3 << Name() << "_ihcal_summary Run " << cl->RunNumber() << ", build " << cl->build(); 
   //runstring3 = runnostream3.str(); 
-  runnostream4 << Name() << "_ihcal_pedestal_RMS_ Run " << cl->RunNumber();
+  runnostream4 << Name() << "_ihcal_pedestal_RMS_ Run " << cl->RunNumber() << ", build " << cl->build();
   runstring4 = runnostream4.str();
   transparent[2]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -857,13 +857,13 @@ int CaloDraw::DrawOhcal()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1,runnostream2, runnostream3, runnostream4;
   std::string runstring1, runstring2, runstring3, runstring4;
-  runnostream1 << Name() << "_ohcal Run " << cl->RunNumber();
+  runnostream1 << Name() << "_ohcal Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
-  runnostream2 << Name() << "_ohcal_tower_masking Run " << cl->RunNumber();
+  runnostream2 << Name() << "_ohcal_tower_masking Run " << cl->RunNumber() << ", build " << cl->build();
   runstring2 = runnostream2.str();
-  //runnostream3 << Name() << "_ohcal_summary Run " << cl->RunNumber();
+  //runnostream3 << Name() << "_ohcal_summary Run " << cl->RunNumber() << ", build " << cl->build();
   //runstring3 = runnostream3.str();
-  runnostream4 << Name() << "_ohcal_pedestal_RMS_ Run " << cl->RunNumber();
+  runnostream4 << Name() << "_ohcal_pedestal_RMS_ Run " << cl->RunNumber() << ", build " << cl->build();
   runstring4 = runnostream4.str();
   transparent[3]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -965,7 +965,7 @@ int CaloDraw::DrawZdcMbd()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  runnostream << Name() << "_zdc&mbd Run " << cl->RunNumber();
+  runnostream << Name() << "_zdc&mbd Run " << cl->RunNumber() << ", build " << cl->build();
   runstring = runnostream.str();
   transparent[4]->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -1074,9 +1074,9 @@ int CaloDraw::DrawCorr()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1;//, runnostream2;
   std::string runstring1;//, runstring2;
-  runnostream1 << Name() << "_correlation Run " << cl->RunNumber();
+  runnostream1 << Name() << "_correlation Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
-  /* runnostream2 << Name() << "_corr_2 Run " << cl->RunNumber(); */
+  /* runnostream2 << Name() << "_corr_2 Run " << cl->RunNumber() << ", build " << cl->build(); */
   /* runstring2 = runnostream2.str(); */
   transparent[5]->cd();
   PrintRun.DrawText(0.5, 1., runstring1.c_str());
@@ -1164,7 +1164,7 @@ void CaloDraw::SetCemcSummary(TCanvas* c)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  runnostream << Name() << "_cemc_summary Run " << cl->RunNumber();
+  runnostream << Name() << "_cemc_summary Run " << cl->RunNumber() << ", build " << cl->build();
   runstring = runnostream.str();
   tr->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -1190,7 +1190,7 @@ void CaloDraw::SetihcalSummary(TCanvas* c)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  runnostream << Name()<< "_ihcal_summary Run " << cl->RunNumber();
+  runnostream << Name()<< "_ihcal_summary Run " << cl->RunNumber() << ", build " << cl->build();
   runstring = runnostream.str();
   tr->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());
@@ -1216,7 +1216,7 @@ void CaloDraw::SetohcalSummary(TCanvas* c)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  runnostream << Name() << "_ohcal_summary Run " << cl->RunNumber();
+  runnostream << Name() << "_ohcal_summary Run " << cl->RunNumber() << ", build " << cl->build();
   runstring = runnostream.str();
   tr->cd();
   PrintRun.DrawText(0.5, 1., runstring.c_str());

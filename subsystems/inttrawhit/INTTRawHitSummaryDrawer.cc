@@ -182,7 +182,7 @@ int INTTRawHitSummaryDrawer::DrawCanvas()
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream1;
   std::string runstring1;
-  runnostream1 << m_name << "_intt Summary Info Run " << cl->RunNumber();
+  runnostream1 << m_name << "_intt Summary Info Run " << cl->RunNumber() << ", build " << cl->build();
   runstring1 = runnostream1.str();
   Pad[7]->cd();
   PrintRun.DrawText(0.5, 0.5, runstring1.c_str());

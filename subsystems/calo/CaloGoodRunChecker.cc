@@ -36,7 +36,7 @@ std::string CaloGoodRunChecker::MakeHotColdDeadMaps()
   std::string outfile_ihcal = "deadHotTowersIhcal" + histfile_base;
   std::string outfile_ohcal = "deadHotTowersOhcal" + histfile_base;
   calo->FindHot(histfile, outfile_cemc, "h_CaloValid_cemc_etaphi"); 
-  calo->set_hcal();
+  calo->set_ohcal();
   calo->FindHot(histfile, outfile_ihcal, "h_CaloValid_ihcal_etaphi"); 
   calo->FindHot(histfile, outfile_ohcal, "h_CaloValid_ohcal_etaphi"); 
   // consolidate the maps into one file -- need to rename the histograms

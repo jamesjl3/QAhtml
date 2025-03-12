@@ -565,6 +565,9 @@ sub select_run {
   dirlist("physics",$runrange);
   print "</td>\n";
   print "<td>\n";
+  dirlist("cosmics",$runrange);
+  print "</td>\n";
+  print "<td>\n";
   dirlist("unknown",$runrange);
   print "</td>\n";
 
